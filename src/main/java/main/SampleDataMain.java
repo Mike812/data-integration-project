@@ -45,7 +45,7 @@ public class SampleDataMain {
         try {
             String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
             String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
-            String logFile = "C:/database-project/logs/" + SampleDataMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
+            String logFile = "C:/data-integration-project/logs/" + SampleDataMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
             fh = new FileHandler(logFile, true);
             logger.addHandler(fh);
 

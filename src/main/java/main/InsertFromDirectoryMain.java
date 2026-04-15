@@ -42,7 +42,7 @@ public class InsertFromDirectoryMain {
         try{
             String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
             String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
-            String logFile = "C:/database-project/logs/" + InsertFromDirectoryMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
+            String logFile = "C:/data-integration-project/logs/" + InsertFromDirectoryMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
             fh = new FileHandler(logFile, true);
             logger.addHandler(fh);
 
