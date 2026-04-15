@@ -1,0 +1,83 @@
+{
+  "Employees" : [ {
+    "employee_id" : 1,
+    "name" : "Dylan Curtis",
+    "department" : "Sales",
+    "state" : "NV",
+    "age" : 46,
+    "salary" : 63840,
+    "bonus" : 10000
+  }, {
+    "employee_id" : 2,
+    "name" : "Michelle Rogers",
+    "department" : "Marketing",
+    "state" : "NV",
+    "age" : 55,
+    "salary" : 66165,
+    "bonus" : 5000
+  }, {
+    "employee_id" : 3,
+    "name" : "Catherine Bernard",
+    "department" : "Accounting",
+    "state" : "NV",
+    "age" : 33,
+    "salary" : 73457,
+    "bonus" : 1000
+  }, {
+    "employee_id" : 4,
+    "name" : "Doris Romero",
+    "department" : "Sales",
+    "state" : "DE",
+    "age" : 27,
+    "salary" : 60472,
+    "bonus" : 5000
+  }, {
+    "employee_id" : 5,
+    "name" : "Keith Bentley",
+    "department" : "Accounting",
+    "state" : "AR",
+    "age" : 49,
+    "salary" : 71168,
+    "bonus" : 2000
+  }, {
+    "employee_id" : 6,
+    "name" : "Keith Rios",
+    "department" : "Finance",
+    "state" : "KY",
+    "age" : 36,
+    "salary" : 50045,
+    "bonus" : 2000
+  }, {
+    "employee_id" : 7,
+    "name" : "Raymond Monroe",
+    "department" : "Marketing",
+    "state" : "MN",
+    "age" : 56,
+    "salary" : 84018,
+    "bonus" : 2000
+  }, {
+    "employee_id" : 8,
+    "name" : "Abigail Horn",
+    "department" : "IT",
+    "state" : "NY",
+    "age" : 48,
+    "salary" : 90392,
+    "bonus" : 1000
+  }, {
+    "employee_id" : 9,
+    "name" : "Christopher Horn",
+    "department" : "Accounting",
+    "state" : "TX",
+    "age" : 54,
+    "salary" : 59088,
+    "bonus" : 15000
+  }, {
+    "employee_id" : 10,
+    "name" : "Jack Greene",
+    "department" : "IT",
+    "state" : "MS",
+    "age" : 27,
+    "salary" : 89772,
+    "bonus" : 1000
+  } ]
+}
