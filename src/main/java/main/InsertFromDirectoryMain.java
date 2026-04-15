@@ -28,6 +28,10 @@ public class InsertFromDirectoryMain {
         inputDirOption.setRequired(true);
         options.addOption(inputDirOption);
 
+        Option logDirOption = new Option("l", "log_dir", true, "directory for log files");
+        logDirOption.setRequired(true);
+        options.addOption(logDirOption);
+
         Option tableOption = new Option("t", "table", true,
                 "table in which values are inserted (employee or customer_event)");
         tableOption.setRequired(true);
@@ -40,16 +44,17 @@ public class InsertFromDirectoryMain {
         FileHandler fh = null;
 
         try{
-            String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
-            String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
-            String logFile = "C:/data-integration-project/logs/" + InsertFromDirectoryMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
-            fh = new FileHandler(logFile, true);
-            logger.addHandler(fh);
-
             CommandLine cmd = parser.parse(options, args);
             String database = cmd.getOptionValue("database");
             String inputDir = cmd.getOptionValue("input_dir");
+            String logDir = cmd.getOptionValue("log_dir");
             String table = cmd.getOptionValue("table");
+
+            String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
+            String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
+            String logFile = logDir + "/" + InsertFromDirectoryMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
+            fh = new FileHandler(logFile, true);
+            logger.addHandler(fh);
 
             PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils(database);
             Connection connection = postgresSqlConnection.getPostgreSqlConnection();

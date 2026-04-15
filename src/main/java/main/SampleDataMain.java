@@ -23,6 +23,14 @@ public class SampleDataMain {
         input.setRequired(true);
         options.addOption(input);
 
+        Option id = new Option("id", "start_id", true, "start number of a sequential id");
+        id.setRequired(true);
+        options.addOption(id);
+
+        Option logDirOption = new Option("l", "log_dir", true, "directory for log files");
+        logDirOption.setRequired(true);
+        options.addOption(logDirOption);
+
         Option output = new Option("o", "output", true, "output path");
         output.setRequired(true);
         options.addOption(output);
@@ -31,11 +39,6 @@ public class SampleDataMain {
         samples.setRequired(true);
         options.addOption(samples);
 
-        Option id = new Option("id", "start_id", true,
-                "start number of a sequential id");
-        id.setRequired(true);
-        options.addOption(id);
-
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
 
@@ -43,17 +46,18 @@ public class SampleDataMain {
         FileHandler fh = null;
 
         try {
-            String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
-            String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
-            String logFile = "C:/data-integration-project/logs/" + SampleDataMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
-            fh = new FileHandler(logFile, true);
-            logger.addHandler(fh);
-
             CommandLine cmd = parser.parse(options, args);
             String inputTable = cmd.getOptionValue("input");
+            String logDir = cmd.getOptionValue("log_dir");
             String outputPath = cmd.getOptionValue("output");
             int numberOfSamples = Integer.parseInt(cmd.getOptionValue("samples"));
             int startId = Integer.parseInt(cmd.getOptionValue("start_id"));
+
+            String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
+            String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
+            String logFile = logDir + "/" + SampleDataMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
+            fh = new FileHandler(logFile, true);
+            logger.addHandler(fh);
 
             switch (inputTable){
                 case EmployeeTable.TABLE_NAME:

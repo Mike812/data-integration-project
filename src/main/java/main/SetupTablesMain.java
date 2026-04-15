@@ -22,19 +22,23 @@ public class SetupTablesMain {
 
         Options options = new Options();
 
+        Option customerOption = new Option("c", "customers", true,
+                "number of customer event samples");
+        customerOption.setRequired(true);
+        options.addOption(customerOption);
+
         Option databaseOption = new Option("d", "database", true, "input database");
         databaseOption.setRequired(true);
         options.addOption(databaseOption);
 
-        Option employeeSamples = new Option("e", "employees", true,
+        Option employeeOption = new Option("e", "employees", true,
                 "number of employee samples");
-        employeeSamples.setRequired(true);
-        options.addOption(employeeSamples);
+        employeeOption.setRequired(true);
+        options.addOption(employeeOption);
 
-        Option customerSamples = new Option("c", "customers", true,
-                "number of customer event samples");
-        customerSamples.setRequired(true);
-        options.addOption(customerSamples);
+        Option logDirOption = new Option("l", "log_dir", true, "directory for log files");
+        logDirOption.setRequired(true);
+        options.addOption(logDirOption);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -43,16 +47,17 @@ public class SetupTablesMain {
         FileHandler fh = null;
 
         try{
-            String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
-            String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
-            String logFile = "C:/data-integration-project/logs/" + SetupTablesMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
-            fh = new FileHandler(logFile, true);
-            logger.addHandler(fh);
-
             CommandLine cmd = parser.parse(options, args);
             String database = cmd.getOptionValue("database");
+            String logDir = cmd.getOptionValue("log_dir");
             int numberOfEmployeeSamples = Integer.parseInt(cmd.getOptionValue("employees"));
             int numberOfCustomerSamples = Integer.parseInt(cmd.getOptionValue("customers"));
+
+            String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
+            String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
+            String logFile = logDir + "/" + SetupTablesMain.class.getSimpleName() + "_" + currentTimestamp + ".log";
+            fh = new FileHandler(logFile, true);
+            logger.addHandler(fh);
 
             PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils(database);
             Connection connection = postgresSqlConnection.getPostgreSqlConnection();
