@@ -41,7 +41,7 @@ public class KafkaProducerMain {
             CommandLine cmd = parser.parse(options, args);
             String database = cmd.getOptionValue("database");
             String inputDir = cmd.getOptionValue("input_dir");
-            String runMode = "database";
+            String runMode = "factory";
             if (inputDir != null){
                 runMode = "directory";
             }
@@ -75,12 +75,12 @@ public class KafkaProducerMain {
                 case "factory":
                     CustomerEventFactory customerEventFactory = new CustomerEventFactory();
                     customerEvents =
-                            customerEventFactory.createCustomerEventSampleData(0, 10000);
+                            customerEventFactory.createCustomerEventSampleData(0, 1000);
                     break;
             }
 
             for(int i=0;i<customerEvents.size();i++){
-                String key = "key-"+i+1;
+                String key = "key-"+i;
                 CustomerEvent value = customerEvents.get(i);
                 RecordMetadata recordMetadata = kafkaProducer.send(new ProducerRecord<>(kafkaTopic, key, value)).get();
                 System.out.printf("Sent record(key=%s value=%s) meta(partition=%d, offset=%d)%n", key, value, recordMetadata.partition(), recordMetadata.offset());
