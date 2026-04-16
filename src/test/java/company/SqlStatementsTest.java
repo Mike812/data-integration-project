@@ -82,14 +82,14 @@ public class SqlStatementsTest {
         Connection connection = postgreSqlConnection.getPostgreSqlConnection();
         Statement statement = postgreSqlConnection.getSqlStatement(connection);
 
-
         int dropTableResult = SqlStatements.dropTable(connection, employeeTable);
         assertEquals(0, dropTableResult);
 
         int createTableResult = SqlStatements.createTable(connection, employeeTable);
         assertEquals(0, createTableResult);
 
-        int insertJsonDataResult = SqlStatements.insertEmployeesIntoTable(connection, employeeTable, employeesJson);
+        List<Employee> employeesJsonWithId = EmployeeFactory.addIdToEmployees(employeesJson, 0);
+        int insertJsonDataResult = SqlStatements.insertEmployeesIntoTable(connection, employeeTable, employeesJsonWithId);
         assertEquals(numberOfEmployeesJson, insertJsonDataResult);
 
         ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, employeeTable);
@@ -127,8 +127,9 @@ public class SqlStatementsTest {
         int createTableResult = SqlStatements.createTable(connection, customerEventTable);
         assertEquals(0, createTableResult);
 
+        List<CustomerEvent> customerEventsJsonWithId = CustomerEventFactory.addIdToCustomerEvents(customerEventsJson, 0);
         int insertJsonDataResult = SqlStatements.insertCustomerEventsIntoTable(connection, customerEventTable,
-                customerEventsJson);
+                customerEventsJsonWithId);
         assertEquals(numberOfEventsJson, insertJsonDataResult);
 
         ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, customerEventTable);

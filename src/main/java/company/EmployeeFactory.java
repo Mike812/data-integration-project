@@ -46,9 +46,9 @@ public class EmployeeFactory {
             int bonus = this.bonus[random.nextInt(this.bonus.length)];
 
             if(databaseEntry){
-                employees.add(new Employee(name, department, state, salary, age, bonus));
-            } else {
                 employees.add(new Employee(employeeId, name, department, state, salary, age, bonus));
+            } else {
+                employees.add(new Employee(name, department, state, salary, age, bonus));
             }
         }
 

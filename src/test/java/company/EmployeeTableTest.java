@@ -21,6 +21,7 @@ public class EmployeeTableTest {
     public void testInsertIntoTableString() {
         String pathToEmployeeJson = "json/employees_12-04-2026_15-19-01.json";
         List<Employee> employeesJson = readEmployeesFromJsonFile(pathToEmployeeJson);
+        List<Employee> employeesJsonWithId = EmployeeFactory.addIdToEmployees(employeesJson, 0);
         String expectedString = "INSERT INTO employee VALUES  (1, 'Dylan Curtis', 'Sales', 'NV', 63840, 46, 10000), " +
                 "(2, 'Michelle Rogers', 'Marketing', 'NV', 66165, 55, 5000), " +
                 "(3, 'Catherine Bernard', 'Accounting', 'NV', 73457, 33, 1000), " +
@@ -32,7 +33,7 @@ public class EmployeeTableTest {
                 "(9, 'Christopher Horn', 'Accounting', 'TX', 59088, 54, 15000), " +
                 "(10, 'Jack Greene', 'IT', 'MS', 89772, 27, 1000);";
 
-        String result = EmployeeTable.getInsertIntoTableString(EmployeeTable.TABLE_NAME, employeesJson);
+        String result = EmployeeTable.getInsertIntoTableString(EmployeeTable.TABLE_NAME, employeesJsonWithId);
 
         assertEquals(expectedString, result);
     }

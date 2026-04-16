@@ -38,12 +38,10 @@ public class InsertFromDirectoryMainTest {
             }
         }
 
-        String[] args = {"-id", "0", "-l", logDir, "-t", EmployeeTable.TABLE_NAME, "-o", outputDir,
-                "-n", String.valueOf(samplesFirstRun)};
+        String[] args = {"-l", logDir, "-t", EmployeeTable.TABLE_NAME, "-o", outputDir, "-n", String.valueOf(samplesFirstRun)};
         SampleDataMain.main(args);
         Thread.sleep(2000);
-        String[] args2 = {"-id", String.valueOf(samplesFirstRun), "-l", logDir, "-t", EmployeeTable.TABLE_NAME, "-o", outputDir,
-                "-n", String.valueOf(samplesSecondRun)};
+        String[] args2 = {"-l", logDir, "-t", EmployeeTable.TABLE_NAME, "-o", outputDir, "-n", String.valueOf(samplesSecondRun)};
         SampleDataMain.main(args2);
 
         File[] jsonFilesAfter = directory.listFiles();
@@ -87,12 +85,10 @@ public class InsertFromDirectoryMainTest {
             }
         }
 
-        String[] args = {"-id", "0", "-l", logDir, "-t", CustomerEventTable.TABLE_NAME, "-o", outputDir,
-                "-n", String.valueOf(samplesFirstRun)};
+        String[] args = {"-l", logDir, "-t", CustomerEventTable.TABLE_NAME, "-o", outputDir, "-n", String.valueOf(samplesFirstRun)};
         SampleDataMain.main(args);
         Thread.sleep(2000);
-        String[] args2 = {"-id", String.valueOf(samplesFirstRun), "-l", logDir, "-t", CustomerEventTable.TABLE_NAME, "-o", outputDir,
-                "-n", String.valueOf(samplesSecondRun)};
+        String[] args2 = {"-l", logDir, "-t", CustomerEventTable.TABLE_NAME, "-o", outputDir, "-n", String.valueOf(samplesSecondRun)};
         SampleDataMain.main(args2);
 
         File[] jsonFilesAfter = directory.listFiles();
