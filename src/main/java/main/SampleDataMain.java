@@ -19,10 +19,6 @@ public class SampleDataMain {
 
         Options options = new Options();
 
-        Option input = new Option("i", "input", true, "input table");
-        input.setRequired(true);
-        options.addOption(input);
-
         Option id = new Option("id", "start_id", true, "start number of a sequential id");
         id.setRequired(true);
         options.addOption(id);
@@ -31,13 +27,17 @@ public class SampleDataMain {
         logDirOption.setRequired(true);
         options.addOption(logDirOption);
 
+        Option samples = new Option("n", "number_samples", true, "number of samples");
+        samples.setRequired(true);
+        options.addOption(samples);
+
         Option output = new Option("o", "output", true, "output path");
         output.setRequired(true);
         options.addOption(output);
 
-        Option samples = new Option("s", "samples", true, "number of samples");
-        samples.setRequired(true);
-        options.addOption(samples);
+        Option input = new Option("t", "table", true, "input table");
+        input.setRequired(true);
+        options.addOption(input);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -47,10 +47,10 @@ public class SampleDataMain {
 
         try {
             CommandLine cmd = parser.parse(options, args);
-            String inputTable = cmd.getOptionValue("input");
+            String inputTable = cmd.getOptionValue("table");
             String logDir = cmd.getOptionValue("log_dir");
             String outputPath = cmd.getOptionValue("output");
-            int numberOfSamples = Integer.parseInt(cmd.getOptionValue("samples"));
+            int numberOfSamples = Integer.parseInt(cmd.getOptionValue("number_samples"));
             int startId = Integer.parseInt(cmd.getOptionValue("start_id"));
 
             String timestampFormat = "dd-MM-yyyy_HH-mm-ss";

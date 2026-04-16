@@ -22,9 +22,8 @@ public class SetupTablesMain {
 
         Options options = new Options();
 
-        Option customerOption = new Option("c", "customers", true,
+        Option customerOption = new Option("c", "customer_events", true,
                 "number of customer event samples");
-        customerOption.setRequired(true);
         options.addOption(customerOption);
 
         Option databaseOption = new Option("d", "database", true, "input database");
@@ -33,7 +32,6 @@ public class SetupTablesMain {
 
         Option employeeOption = new Option("e", "employees", true,
                 "number of employee samples");
-        employeeOption.setRequired(true);
         options.addOption(employeeOption);
 
         Option logDirOption = new Option("l", "log_dir", true, "directory for log files");
@@ -50,8 +48,14 @@ public class SetupTablesMain {
             CommandLine cmd = parser.parse(options, args);
             String database = cmd.getOptionValue("database");
             String logDir = cmd.getOptionValue("log_dir");
-            int numberOfEmployeeSamples = Integer.parseInt(cmd.getOptionValue("employees"));
-            int numberOfCustomerSamples = Integer.parseInt(cmd.getOptionValue("customers"));
+            int numberOfEmployeeSamples = 0;
+            int numberOfCustomerEventSamples = 0;
+            if(cmd.getOptionValue("employees") != null){
+                numberOfEmployeeSamples = Integer.parseInt(cmd.getOptionValue("employees"));
+            }
+            if(cmd.getOptionValue("customer_events") != null){
+                numberOfCustomerEventSamples = Integer.parseInt(cmd.getOptionValue("customer_events"));
+            }
 
             String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
             String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
@@ -71,18 +75,22 @@ public class SetupTablesMain {
             SqlStatements.truncateTable(connection, EmployeeTable.TABLE_NAME);
             SqlStatements.truncateTable(connection, CustomerEventTable.TABLE_NAME);
 
-            logger.info("Create random sample data and insert values in employee");
-            EmployeeFactory empFactory = new EmployeeFactory();
-            List<Employee> randomEmployees =
-                    empFactory.createEmployeeSampleData(0, numberOfEmployeeSamples);
-            SqlStatements.insertEmployeesIntoTable(connection, EmployeeTable.TABLE_NAME, randomEmployees);
+            if(numberOfEmployeeSamples>0){
+                logger.info("Create random sample data and insert values in employee");
+                EmployeeFactory empFactory = new EmployeeFactory();
+                List<Employee> randomEmployees =
+                        empFactory.createEmployeeSampleData(0, numberOfEmployeeSamples);
+                SqlStatements.insertEmployeesIntoTable(connection, EmployeeTable.TABLE_NAME, randomEmployees);
+            }
 
-            logger.info("Create random sample data and insert values in customer event");
-            CustomerEventFactory customerEventFactory = new CustomerEventFactory();
-            List<CustomerEvent> customerEvents =
-                    customerEventFactory.createCustomerEventSampleData(0, numberOfCustomerSamples);
-            SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME,
-                    customerEvents);
+            if(numberOfCustomerEventSamples>0){
+                logger.info("Create random sample data and insert values in customer event");
+                CustomerEventFactory customerEventFactory = new CustomerEventFactory();
+                List<CustomerEvent> customerEvents =
+                        customerEventFactory.createCustomerEventSampleData(0, numberOfCustomerEventSamples);
+                SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME,
+                        customerEvents);
+            }
 
             statement.close();
             connection.close();
@@ -92,7 +100,7 @@ public class SetupTablesMain {
             e.printStackTrace();
         } catch (ParseException e){
             logger.info("Parser exception in setup tables main method");
-            System.out.println(e.getMessage());
+            logger.info(e.getMessage());
             formatter.printHelp("Setup tables main", options);
 
             System.exit(1);

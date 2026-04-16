@@ -43,12 +43,10 @@ docker run -d -p 9092:9092 --name kafkaBroker my-kafka-image
 Create tables in an existing database and insert random sample data.
 
 usage: Setup tables main <br>
--c,--customers <arg> &emsp; number of customer event samples <br>
+-c,--customer_events <arg> &emsp; number of customer event samples <br>
 -d,--database <arg> &emsp; input database <br>
 -e,--employees <arg> &emsp; number of employee samples <br>
-
-Example: <br>
--c 10000 -d company -e 1000
+-l,--log_dir <arg>     directory for log files <br>
 
 ## Sample data main
 
@@ -56,14 +54,11 @@ Create sample data for a given table in json format and write it to an output pa
 Adapt the id accordingly if you run it multiple times.
 
 usage: Sample data main <br>
--i,--input <arg> &emsp; input table <br>
--id,--start_id <arg> &emsp; start number of a sequential id <br>
--o,--output <arg> &emsp; output path <br>
--s,--samples <arg> &emsp; number of samples <br>
-
-Example: <br>
--i employee -o pathToDir -s 100 -id 100
--i customer_event -o pathToDir -s 10000 -id 10000
+-id,--start_id <arg>        start number of a sequential id <br>
+-l,--log_dir <arg>          directory for log files <br>
+-n,--number_samples <arg>   number of samples <br>
+-o,--output <arg>           output path <br>
+-t,--table <arg>            input table <br>
 
 ## Insert from directory main
 
@@ -72,8 +67,6 @@ Insert values from multiple json files in an input directory into a table. <br>
 usage: Setup tables main <br>
 -d,--database <arg> &emsp; input database <br>
 -i,--input_dir <arg> &emsp; input directory with json files <br>
+-l,--log_dir <arg>     directory for log files <br>
 -t,--table <arg> &emsp; table in which values are inserted (employee or customer_event) <br>
-
-Example: <br>
--d company -i pathToDir -t customer_event 
 

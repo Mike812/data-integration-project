@@ -22,7 +22,8 @@ public class InsertFromDirectoryMainTest {
     String database = "company";
     int samplesFirstRun = 10000;
     int samplesSecondRun = 5000;
-    String jsonDir = "C:/database-project/sample_data/json/";
+    String logDir = "C:/data-integration-project/logs/";
+    String jsonDir = "C:/data-integration-project/sample_data/json/";
 
     @Test
     public void testASampleDataMainEmployee() throws InterruptedException {
@@ -37,10 +38,12 @@ public class InsertFromDirectoryMainTest {
             }
         }
 
-        String[] args = {"-i", EmployeeTable.TABLE_NAME, "-o", outputDir, "-s", String.valueOf(samplesFirstRun), "-id", "0"};
+        String[] args = {"-id", "0", "-l", logDir, "-t", EmployeeTable.TABLE_NAME, "-o", outputDir,
+                "-n", String.valueOf(samplesFirstRun)};
         SampleDataMain.main(args);
         Thread.sleep(2000);
-        String[] args2 = {"-i", EmployeeTable.TABLE_NAME, "-o", outputDir, "-s", String.valueOf(samplesSecondRun), "-id", "10000"};
+        String[] args2 = {"-id", String.valueOf(samplesFirstRun), "-l", logDir, "-t", EmployeeTable.TABLE_NAME, "-o", outputDir,
+                "-n", String.valueOf(samplesSecondRun)};
         SampleDataMain.main(args2);
 
         File[] jsonFilesAfter = directory.listFiles();
@@ -55,7 +58,7 @@ public class InsertFromDirectoryMainTest {
         Statement statement = postgreSqlConnection.getSqlStatement(connection);
 
         String inputDir = jsonDir + EmployeeTable.TABLE_NAME;
-        String[] args = {"-d", database, "-i", inputDir, "-t", EmployeeTable.TABLE_NAME};
+        String[] args = {"-d", database, "-i", inputDir, "-l", logDir, "-t", EmployeeTable.TABLE_NAME};
         InsertFromDirectoryMain.main(args);
 
         ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, EmployeeTable.TABLE_NAME);
@@ -82,10 +85,12 @@ public class InsertFromDirectoryMainTest {
             }
         }
 
-        String[] args = {"-i", CustomerEventTable.TABLE_NAME, "-o", outputDir, "-s", String.valueOf(samplesFirstRun), "-id", "0"};
+        String[] args = {"-id", "0", "-l", logDir, "-t", CustomerEventTable.TABLE_NAME, "-o", outputDir,
+                "-n", String.valueOf(samplesFirstRun)};
         SampleDataMain.main(args);
         Thread.sleep(2000);
-        String[] args2 = {"-i", CustomerEventTable.TABLE_NAME, "-o", outputDir, "-s", String.valueOf(samplesSecondRun), "-id", "10000"};
+        String[] args2 = {"-id", String.valueOf(samplesFirstRun), "-l", logDir, "-t", CustomerEventTable.TABLE_NAME, "-o", outputDir,
+                "-n", String.valueOf(samplesSecondRun)};
         SampleDataMain.main(args2);
 
         File[] jsonFilesAfter = directory.listFiles();
@@ -100,7 +105,7 @@ public class InsertFromDirectoryMainTest {
         Statement statement = postgreSqlConnection.getSqlStatement(connection);
 
         String inputDir = jsonDir + CustomerEventTable.TABLE_NAME;
-        String[] args = {"-d", database, "-i", inputDir, "-t", CustomerEventTable.TABLE_NAME};
+        String[] args = {"-d", database, "-i", inputDir, "-l", logDir, "-t", CustomerEventTable.TABLE_NAME};
         InsertFromDirectoryMain.main(args);
 
         ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, CustomerEventTable.TABLE_NAME);

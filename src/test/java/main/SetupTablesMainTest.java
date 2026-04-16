@@ -17,14 +17,16 @@ public class SetupTablesMainTest {
     @Test
     public void testSetupTablesMain() throws SQLException, InterruptedException {
         String database = "company";
-        int numberOfEmployees = 1000;
-        int numberOfCustomerEvents = 10000;
+        String logDir = "C:/data-integration-project/logs/";
+        int numberOfEmployees = 100;
+        int numberOfCustomerEvents = 1000;
 
         PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
         Connection connection = postgreSqlConnection.getPostgreSqlConnection();
         Statement statement = postgreSqlConnection.getSqlStatement(connection);
 
-        String[] args = {"-d", database, "-e", String.valueOf(numberOfEmployees), "-c", String.valueOf(numberOfCustomerEvents)};
+        String[] args = {"-d", database, "-l", logDir, "-e", String.valueOf(numberOfEmployees),
+                "-c", String.valueOf(numberOfCustomerEvents)};
         SetupTablesMain.main(args);
 
         ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, EmployeeTable.TABLE_NAME);
