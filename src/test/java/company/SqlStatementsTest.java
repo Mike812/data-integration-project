@@ -26,7 +26,7 @@ public class SqlStatementsTest {
     EmployeeFactory employeeFactory = new EmployeeFactory();
     int numberOfEmployees = 1000;
     int numberOfEmployeesJson = 10;
-    List<Employee> employees = employeeFactory.createEmployeeSampleData(numberOfEmployeesJson, numberOfEmployees);
+    List<Employee> employees = employeeFactory.createEmployeeSampleData(numberOfEmployeesJson, numberOfEmployees, true);
     String pathToEmployeeJson = "json/employees_12-04-2026_15-19-01.json";
     List<Employee> employeesJson = readEmployeesFromJsonFile(pathToEmployeeJson);
 
@@ -35,7 +35,7 @@ public class SqlStatementsTest {
     int numberOfEvents = 1000;
     int numberOfEventsJson = 10;
     List<CustomerEvent> customerEvents =
-            this.customerEventFactory.createCustomerEventSampleData(numberOfEventsJson, numberOfEvents);
+            this.customerEventFactory.createCustomerEventSampleData(numberOfEventsJson, numberOfEvents, true);
     String pathToCustomerEventJson = "json/customer_events_12-04-2026_17-16-03.json";
     List<CustomerEvent> customerEventsJson = readCustomerEventsFromJsonFile(pathToCustomerEventJson);
 

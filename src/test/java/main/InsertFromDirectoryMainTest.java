@@ -57,6 +57,8 @@ public class InsertFromDirectoryMainTest {
         Connection connection = postgreSqlConnection.getPostgreSqlConnection();
         Statement statement = postgreSqlConnection.getSqlStatement(connection);
 
+        SqlStatements.truncateTable(connection, EmployeeTable.TABLE_NAME);
+
         String inputDir = jsonDir + EmployeeTable.TABLE_NAME;
         String[] args = {"-d", database, "-i", inputDir, "-l", logDir, "-t", EmployeeTable.TABLE_NAME};
         InsertFromDirectoryMain.main(args);
@@ -103,6 +105,8 @@ public class InsertFromDirectoryMainTest {
         PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
         Connection connection = postgreSqlConnection.getPostgreSqlConnection();
         Statement statement = postgreSqlConnection.getSqlStatement(connection);
+
+        SqlStatements.truncateTable(connection, CustomerEventTable.TABLE_NAME);
 
         String inputDir = jsonDir + CustomerEventTable.TABLE_NAME;
         String[] args = {"-d", database, "-i", inputDir, "-l", logDir, "-t", CustomerEventTable.TABLE_NAME};

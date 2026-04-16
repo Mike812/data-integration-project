@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class CustomerEvent {
 
-    @JsonProperty(CustomerEventTable.ID_COLUMN)
     private int customerEventId;
     @JsonProperty(CustomerEventTable.CUSTOMER_NAME_COLUMN)
     private String customerName;
@@ -22,6 +21,13 @@ public class CustomerEvent {
 
     // Necessary for json deserialization
     public CustomerEvent() {}
+
+    public CustomerEvent(String customerName, String productName, int salesAmount, String eventTimestamp){
+        this.customerName = customerName;
+        this.productName = productName;
+        this.salesAmount = salesAmount;
+        this.eventTimestamp = eventTimestamp;
+    }
 
     public CustomerEvent(int customerEventId, String customerName, String productName, int salesAmount,
                          String eventTimestamp){

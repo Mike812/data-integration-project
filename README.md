@@ -54,7 +54,6 @@ Create sample data for a given table in json format and write it to an output pa
 Adapt the id accordingly if you run it multiple times.
 
 usage: Sample data main <br>
--id,--start_id <arg>        start number of a sequential id <br>
 -l,--log_dir <arg>          directory for log files <br>
 -n,--number_samples <arg>   number of samples <br>
 -o,--output <arg>           output path <br>

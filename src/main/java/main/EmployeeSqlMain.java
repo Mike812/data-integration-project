@@ -43,7 +43,7 @@ public class EmployeeSqlMain {
                     int maxId = SqlStatements.getMaxIdFromTable(statement, inputTable, EmployeeTable.ID_COLUMN);
                     if(maxId != -1){
                         List<Employee> randomEmployees =
-                                empFactory.createEmployeeSampleData(maxId, numberOfEmployeesToCreate);
+                                empFactory.createEmployeeSampleData(maxId, numberOfEmployeesToCreate, true);
                         SqlStatements.insertEmployeesIntoTable(connection, inputTable, randomEmployees);
                     } else {
                         System.out.println("Creation of random employees failed because max id is " + maxId);

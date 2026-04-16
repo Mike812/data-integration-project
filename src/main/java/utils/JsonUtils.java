@@ -121,7 +121,6 @@ public class JsonUtils {
 
             for(Employee employee : employees){
                 employeesNode.add(mapper.createObjectNode()
-                        .put(EmployeeTable.ID_COLUMN, employee.getEmployeeId())
                         .put(EmployeeTable.NAME_COLUMN, employee.getName())
                         .put(EmployeeTable.DEPARTMENT_COLUMN, employee.getDepartment())
                         .put(EmployeeTable.STATE_COLUMN, employee.getState())
@@ -150,7 +149,6 @@ public class JsonUtils {
 
             for(CustomerEvent customerEvent : customerEvents){
                 customerEventNode.add(mapper.createObjectNode()
-                        .put(CustomerEventTable.ID_COLUMN, customerEvent.getCustomerEventId())
                         .put(CustomerEventTable.CUSTOMER_NAME_COLUMN, customerEvent.getCustomerName())
                         .put(CustomerEventTable.PRODUCT_NAME_COLUMN, customerEvent.getProductName())
                         .put(CustomerEventTable.SALES_AMOUNT_COLUMN, customerEvent.getSalesAmount())

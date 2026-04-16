@@ -64,27 +64,27 @@ public class InsertFromDirectoryMain {
             if (table.equals(CustomerEventTable.TABLE_NAME)){
                 logger.info("Read customer events from directory");
                 List<CustomerEvent> allCustomerEvents = JsonUtils.readCustomerEventsFromDirectory(inputDir);
-                logger.info("Truncate customer event table");
-                SqlStatements.truncateTable(connection, CustomerEventTable.TABLE_NAME);
+                int maxId = SqlStatements.getMaxIdFromTable(statement, table, CustomerEventTable.ID_COLUMN);
+                List<CustomerEvent> allCustomerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(allCustomerEvents, maxId);
                 if (allCustomerEvents.size() > limit){
                     logger.info("Insert customer events in sublists");
-                    insertCustomerEventSublistsIntoTable(connection, allCustomerEvents, limit);
+                    insertCustomerEventSublistsIntoTable(connection, allCustomerEventsWithId, limit);
                 } else {
                     logger.info("Insert customer events at once");
-                    SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME, allCustomerEvents);
+                    SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME, allCustomerEventsWithId);
                 }
             }
             else if (table.equals(EmployeeTable.TABLE_NAME)){
                 logger.info("Read employees from directory");
                 List<Employee> allEmployees = JsonUtils.readEmployeesFromDirectory(inputDir);
-                logger.info("Truncate employee table");
-                SqlStatements.truncateTable(connection, EmployeeTable.TABLE_NAME);
+                int maxId = SqlStatements.getMaxIdFromTable(statement, table, EmployeeTable.ID_COLUMN);
+                List<Employee> allEmployeesWithId = EmployeeFactory.addIdToEmployees(allEmployees, maxId);
                 if (allEmployees.size() > limit){
                     logger.info("Insert employees in sublists");
-                    insertEmployeeSublistsIntoTable(connection, allEmployees, limit);
+                    insertEmployeeSublistsIntoTable(connection, allEmployeesWithId, limit);
                 } else {
                     logger.info("Insert employees at once");
-                    SqlStatements.insertEmployeesIntoTable(connection, EmployeeTable.TABLE_NAME, allEmployees);
+                    SqlStatements.insertEmployeesIntoTable(connection, EmployeeTable.TABLE_NAME, allEmployeesWithId);
                 }
             }
             else {
