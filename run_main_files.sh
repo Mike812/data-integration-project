@@ -1,3 +1,5 @@
+#!/bin/bash
+
 export KAFKA_HOME=/opt/kafka_2.13-3.8.0
 export PATH=$KAFKA_HOME/bin:$PATH
 
