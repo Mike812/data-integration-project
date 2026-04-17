@@ -1,6 +1,5 @@
 {
   "Employees" : [ {
-    "employee_id" : 1,
     "name" : "Dylan Curtis",
     "department" : "Sales",
     "state" : "NV",
@@ -8,7 +7,6 @@
     "salary" : 63840,
     "bonus" : 10000
   }, {
-    "employee_id" : 2,
     "name" : "Michelle Rogers",
     "department" : "Marketing",
     "state" : "NV",
@@ -16,7 +14,6 @@
     "salary" : 66165,
     "bonus" : 5000
   }, {
-    "employee_id" : 3,
     "name" : "Catherine Bernard",
     "department" : "Accounting",
     "state" : "NV",
@@ -24,7 +21,6 @@
     "salary" : 73457,
     "bonus" : 1000
   }, {
-    "employee_id" : 4,
     "name" : "Doris Romero",
     "department" : "Sales",
     "state" : "DE",
@@ -32,7 +28,6 @@
     "salary" : 60472,
     "bonus" : 5000
   }, {
-    "employee_id" : 5,
     "name" : "Keith Bentley",
     "department" : "Accounting",
     "state" : "AR",
@@ -40,7 +35,6 @@
     "salary" : 71168,
     "bonus" : 2000
   }, {
-    "employee_id" : 6,
     "name" : "Keith Rios",
     "department" : "Finance",
     "state" : "KY",
@@ -48,7 +42,6 @@
     "salary" : 50045,
     "bonus" : 2000
   }, {
-    "employee_id" : 7,
     "name" : "Raymond Monroe",
     "department" : "Marketing",
     "state" : "MN",
@@ -56,7 +49,6 @@
     "salary" : 84018,
     "bonus" : 2000
   }, {
-    "employee_id" : 8,
     "name" : "Abigail Horn",
     "department" : "IT",
     "state" : "NY",
@@ -64,7 +56,6 @@
     "salary" : 90392,
     "bonus" : 1000
   }, {
-    "employee_id" : 9,
     "name" : "Christopher Horn",
     "department" : "Accounting",
     "state" : "TX",
@@ -72,7 +63,6 @@
     "salary" : 59088,
     "bonus" : 15000
   }, {
-    "employee_id" : 10,
     "name" : "Jack Greene",
     "department" : "IT",
     "state" : "MS",

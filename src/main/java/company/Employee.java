@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Employee {
 
-    @JsonProperty(EmployeeTable.ID_COLUMN)
     private int employeeId;
     @JsonProperty(EmployeeTable.NAME_COLUMN)
     private String name;
@@ -27,6 +26,15 @@ public class Employee {
 
     // Necessary for json deserialization
     public Employee(){}
+
+    public Employee(String name, String department, String state, int salary, int age, int bonus){
+        this.name = name;
+        this.department = department;
+        this.state = state;
+        this.salary = salary;
+        this.age = age;
+        this.bonus = bonus;
+    }
 
     public Employee(int employeeId, String name, String department, String state, int salary, int age, int bonus){
         this.employeeId = employeeId;
@@ -46,6 +54,10 @@ public class Employee {
 
     public int getEmployeeId(){
         return this.employeeId;
+    }
+
+    public void setEmployeeId(int employeeId){
+        this.employeeId = employeeId;
     }
 
     public String getName(){

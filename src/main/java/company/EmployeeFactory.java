@@ -32,7 +32,7 @@ public class EmployeeFactory {
         this.bonus = new int[]{1000, 2000, 5000, 10000, 15000};
     }
 
-    public List<Employee> createEmployeeSampleData(int employeeId, int numberOfEmployees){
+    public List<Employee> createEmployeeSampleData(int employeeId, int numberOfEmployees, boolean databaseEntry){
         List<Employee> employees = new ArrayList<>();
         Random random = new Random();
         for(int i=0;i<numberOfEmployees;i++){
@@ -45,9 +45,24 @@ public class EmployeeFactory {
             int age = this.age[random.nextInt(this.age.length)];
             int bonus = this.bonus[random.nextInt(this.bonus.length)];
 
-            employees.add(new Employee(employeeId, name, department, state, salary, age, bonus));
+            if(databaseEntry){
+                employees.add(new Employee(employeeId, name, department, state, salary, age, bonus));
+            } else {
+                employees.add(new Employee(name, department, state, salary, age, bonus));
+            }
         }
 
         return employees;
+    }
+
+    public static List<Employee> addIdToEmployees(List<Employee> employees, int maxId){
+        List<Employee> employeesWithId = new ArrayList<>();
+        for (Employee employee : employees){
+            maxId += 1;
+            employee.setEmployeeId(maxId);
+            employeesWithId.add(employee);
+        }
+
+        return employeesWithId;
     }
 }

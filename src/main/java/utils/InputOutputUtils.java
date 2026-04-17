@@ -23,19 +23,14 @@ public class InputOutputUtils {
         return formatter.format(now);
     }
 
-    /**
-     * Create timestamps in the past relative to the number of events that should be created
-     * @param format
-     * @param plusHours
-     * @param numberOfEvents
-     * @return
-     */
+    // Create timestamps in the past relative to the number of events that should be created
     public static String getTimestampForSampleData(String format, int plusHours, int numberOfEvents){
         int minusTwoYears = 365 * 2;
         int minusDays = 0;
         for(int i=10000; i<numberOfEvents;i+=10000){
             minusDays += minusTwoYears;
         }
+        minusDays += minusTwoYears;
         LocalDateTime now = LocalDateTime.now().minusDays(minusDays).plusHours(plusHours);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
 

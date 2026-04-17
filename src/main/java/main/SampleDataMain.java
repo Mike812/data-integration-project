@@ -19,10 +19,6 @@ public class SampleDataMain {
 
         Options options = new Options();
 
-        Option id = new Option("id", "start_id", true, "start number of a sequential id");
-        id.setRequired(true);
-        options.addOption(id);
-
         Option logDirOption = new Option("l", "log_dir", true, "directory for log files");
         logDirOption.setRequired(true);
         options.addOption(logDirOption);
@@ -51,7 +47,6 @@ public class SampleDataMain {
             String logDir = cmd.getOptionValue("log_dir");
             String outputPath = cmd.getOptionValue("output");
             int numberOfSamples = Integer.parseInt(cmd.getOptionValue("number_samples"));
-            int startId = Integer.parseInt(cmd.getOptionValue("start_id"));
 
             String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
             String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
@@ -63,7 +58,7 @@ public class SampleDataMain {
                 case EmployeeTable.TABLE_NAME:
                     logger.info("Create random employee sample data");
                     EmployeeFactory empFactory = new EmployeeFactory();
-                    List<Employee> employees = empFactory.createEmployeeSampleData(startId, numberOfSamples);
+                    List<Employee> employees = empFactory.createEmployeeSampleData(0, numberOfSamples, false);
                     logger.info("Write employee sample data to json file");
                     String pathToEmployeeJson = outputPath + "/employees_" + currentTimestamp + ".json";
                     JsonUtils.writeEmployeesToJsonFile(employees, pathToEmployeeJson);
@@ -72,7 +67,7 @@ public class SampleDataMain {
                     logger.info("Create random customer event sample data");
                     CustomerEventFactory customerEventFactory = new CustomerEventFactory();
                     List<CustomerEvent> customerEvents =
-                            customerEventFactory.createCustomerEventSampleData(startId, numberOfSamples);
+                            customerEventFactory.createCustomerEventSampleData(0, numberOfSamples, false);
                     logger.info("Write customer event sample data to json file");
                     String pathToCustomerJson = outputPath + "/customer_events_" + currentTimestamp + ".json";
                     JsonUtils.writeCustomerEventsToJsonFile(customerEvents, pathToCustomerJson);
