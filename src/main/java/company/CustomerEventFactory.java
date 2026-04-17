@@ -47,10 +47,8 @@ public class CustomerEventFactory {
         List<CustomerEvent> customerEventsWithId = new ArrayList<>();
         for (CustomerEvent customerEvent : customerEvents){
             maxId += 1;
-            customerEventsWithId.add(
-                    new CustomerEvent(maxId, customerEvent.getCustomerName(), customerEvent.getProductName(),
-                            customerEvent.getSalesAmount(), customerEvent.getEventTimestamp())
-            );
+            customerEvent.setCustomerEventId(maxId);
+            customerEventsWithId.add(customerEvent);
         }
 
         return customerEventsWithId;

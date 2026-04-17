@@ -59,9 +59,8 @@ public class EmployeeFactory {
         List<Employee> employeesWithId = new ArrayList<>();
         for (Employee employee : employees){
             maxId += 1;
-            employeesWithId.add(
-                    new Employee(maxId, employee.getName(), employee.getDepartment(), employee.getState(),
-                            employee.getSalary(), employee.getAge(), employee.getBonus()));
+            employee.setEmployeeId(maxId);
+            employeesWithId.add(employee);
         }
 
         return employeesWithId;

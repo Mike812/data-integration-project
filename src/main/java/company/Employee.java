@@ -56,6 +56,10 @@ public class Employee {
         return this.employeeId;
     }
 
+    public void setEmployeeId(int employeeId){
+        this.employeeId = employeeId;
+    }
+
     public String getName(){
         return this.name;
     }

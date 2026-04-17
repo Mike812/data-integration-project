@@ -49,6 +49,10 @@ public class CustomerEvent {
         return this.customerEventId;
     }
 
+    public void setCustomerEventId(int customerEventId){
+        this.customerEventId = customerEventId;
+    }
+
     public String getCustomerName(){
         return this.customerName;
     }
