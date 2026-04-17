@@ -1,8 +1,7 @@
 package main;
 
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
+import company.CustomerEvent;
+import org.apache.spark.sql.*;
 
 public class SparkStreamingMain {
 
@@ -12,13 +11,20 @@ public class SparkStreamingMain {
                 .master("local")
                 .getOrCreate();
 
+        Encoder<CustomerEvent> customerEventEncoder = Encoders.bean(CustomerEvent.class);
+
         Dataset<Row> lines = sparkSession
                 .readStream()
                 .format("kafka")
                 .option("kafka.bootstrap.servers", "localhost:9092")
                 .option("subscribe", "customer_events_topic")
-                .option("startingOffsets", "earliest").load();
+                .option("startingOffsets", "earliest")
+                .load()
+                .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)");
 
-        System.out.println(lines);
+        lines.show();
+
+        Dataset<CustomerEvent> ds = lines.as(customerEventEncoder);
+        ds.show();
     }
 }

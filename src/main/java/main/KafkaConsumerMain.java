@@ -50,9 +50,7 @@ public class KafkaConsumerMain {
                 }
                 //consumer.commitSync();
                 Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
-                System.out.println();
             }
-
         } catch (IOException e){
             e.printStackTrace();
         }
