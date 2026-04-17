@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export SPARK_HOME=/opt/spark-4.1.0-bin-hadoop3
+export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
 export KAFKA_HOME=/opt/kafka_2.13-3.8.0
 export PATH=$KAFKA_HOME/bin:$PATH
 
@@ -20,4 +22,6 @@ java -cp data-integration-project.jar main.SampleDataMain -t employee -l /home/l
 
 sleep 10 && echo "Waiting for 10 seconds before proceeding with next java programs"
 java -cp data-integration-project.jar main.InsertFromDirectoryMain -d company -l /home/logs -t employee -i /home/sample_data/employee
-java -cp data-integration-project.jar main.InsertFromDirectoryMain -d company -l /home/logs -t customer_event -i /home/sample_data/customer_event
+# java -cp data-integration-project.jar main.InsertFromDirectoryMain -d company -l /home/logs -t customer_event -i /home/sample_data/customer_event
+java -cp data-integration-project.jar main.KafkaProducerMain -d company -i /home/sample_data/customer_event
+java -cp data-integration-project.jar main.KafkaConsumerMain &

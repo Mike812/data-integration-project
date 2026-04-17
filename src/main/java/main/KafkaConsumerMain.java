@@ -1,15 +1,23 @@
 package main;
 
 import company.CustomerEvent;
+import company.CustomerEventFactory;
+import company.CustomerEventTable;
+import company.SqlStatements;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import utils.CustomerEventDeserializer;
+import utils.InputOutputUtils;
+import utils.PostgreSqlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
 import java.util.*;
 
@@ -36,9 +44,16 @@ public class KafkaConsumerMain {
             KafkaConsumer<String, CustomerEvent> consumer = new KafkaConsumer<>(kafkaConsumerProperties);
             consumer.subscribe(Collections.singletonList(kafkaTopic));
 
+            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils("company");
+            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
+            Statement statement = postgresSqlConnection.getSqlStatement(connection);
+            //List<CustomerEvent> allCustomerEvents = JsonUtils.readCustomerEventsFromDirectory("C:\\data-integration-project\\sample_data\\json\\customer_event");
+
             while (true){
                 ConsumerRecords<String, CustomerEvent> consumerRecords = consumer.poll(Duration.ofMillis(100));
                 List<CustomerEvent> customerEvents = new ArrayList<>();
+                String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
+                String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
                 for (ConsumerRecord<String, CustomerEvent> record : consumerRecords) {
                     CustomerEvent customerEvent = record.value();
                     customerEvents.add(customerEvent);
@@ -49,21 +64,39 @@ public class KafkaConsumerMain {
                     );
                 }
                 //consumer.commitSync();
-                Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
+
+                if(!customerEvents.isEmpty()){
+                    Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
+
+                    List<CustomerEvent> customerEventsAggregated = new ArrayList<>();
+                    for(Map.Entry<String, Integer> mapEntry : summedUpSalesAmounts.entrySet()){
+                        String[] customerAndProductNames = mapEntry.getKey().split("_");
+                        String customerName = customerAndProductNames[0];
+                        String productName = customerAndProductNames[1];
+                        int salesAmount = mapEntry.getValue();
+                        customerEventsAggregated.add(new CustomerEvent(customerName, productName, salesAmount, currentTimestamp));
+                    }
+                    int maxId = SqlStatements.getMaxIdFromTable(statement, CustomerEventTable.TABLE_NAME, CustomerEventTable.ID_COLUMN);
+                    List<CustomerEvent> allCustomerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(customerEventsAggregated, maxId);
+                    SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME, allCustomerEventsWithId);
+                }
             }
         } catch (IOException e){
             e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public static Map<String, Integer> getMapWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents){
         Map<String, Integer> customerSalesMap = new HashMap<>();
         for(CustomerEvent customerEvent : customerEvents){
-            String key = customerEvent.getCustomerName();
+            String key = customerEvent.getCustomerName() + "_" + customerEvent.getProductName();
             if(customerSalesMap.get(key) != null){
                 customerSalesMap.put(key, customerSalesMap.get(key) + customerEvent.getSalesAmount());
+            } else {
+                customerSalesMap.put(key, customerEvent.getSalesAmount());
             }
-            customerSalesMap.put(key, customerEvent.getSalesAmount());
         }
 
         return customerSalesMap;

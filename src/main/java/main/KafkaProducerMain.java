@@ -41,7 +41,7 @@ public class KafkaProducerMain {
             CommandLine cmd = parser.parse(options, args);
             String database = cmd.getOptionValue("database");
             String inputDir = cmd.getOptionValue("input_dir");
-            String runMode = "factory";
+            String runMode = "directory";
             if (inputDir != null){
                 runMode = "directory";
             }
