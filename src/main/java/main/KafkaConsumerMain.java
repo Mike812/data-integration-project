@@ -11,8 +11,7 @@ import utils.CustomerEventDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
 
 public class KafkaConsumerMain {
 
@@ -39,20 +38,36 @@ public class KafkaConsumerMain {
 
             while (true){
                 ConsumerRecords<String, CustomerEvent> consumerRecords = consumer.poll(Duration.ofMillis(100));
-
+                List<CustomerEvent> customerEvents = new ArrayList<>();
                 for (ConsumerRecord<String, CustomerEvent> record : consumerRecords) {
                     CustomerEvent customerEvent = record.value();
+                    customerEvents.add(customerEvent);
                     System.out.println("Key: " + record.key() +
                             " Value: " + customerEvent +
                             " Partition: " + record.partition() +
                             " Offset: " + record.offset()
                     );
                 }
-                consumer.commitSync();
+                //consumer.commitSync();
+                Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
+                System.out.println();
             }
 
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
+
+    public static Map<String, Integer> getMapWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents){
+        Map<String, Integer> customerSalesMap = new HashMap<>();
+        for(CustomerEvent customerEvent : customerEvents){
+            String key = customerEvent.getCustomerName();
+            if(customerSalesMap.get(key) != null){
+                customerSalesMap.put(key, customerSalesMap.get(key) + customerEvent.getSalesAmount());
+            }
+            customerSalesMap.put(key, customerEvent.getSalesAmount());
+        }
+
+        return customerSalesMap;
     }
 }

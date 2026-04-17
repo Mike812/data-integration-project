@@ -18,7 +18,7 @@ public class CustomerEventSerializer implements Serializer<CustomerEvent> {
             System.out.println("Serializing...");
             return objectMapper.writeValueAsBytes(customerEvent);
         } catch (Exception e) {
-            throw new SerializationException("Error when serializing MessageDto to byte[]");
+            throw new SerializationException("Error when serializing CustomerEvent to byte[]");
         }
     }
 }

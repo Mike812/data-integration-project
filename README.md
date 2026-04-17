@@ -17,26 +17,20 @@ Start your docker container as follows: <br>
 docker run --name somePostgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=company -p 7432:5432 postgres:latest 
 ```
 <br>
-Alternative 2: Use the dockerfile in the project to copy the jar with dependencies to a container and run the java code there. <br>
+Alternative 2: Use the dockerfile in the project to run the java code there and start Apache Kafka. <br>
 
 ```
 docker build -t my-postgres-image .
-docker run --name postgres-container -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=company -p 7432:5432 my-postgres-image 
+docker run --name postgres-container -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=company -p 7432:5432 -p 9092:9092 my-postgres-image 
 ```
 <br>
 
-If you want to use the Kafka you can use the official Kafka image: <br>
+If you want to use the official Kafka image: <br>
 ```
 docker run -d -p 9092:9092 --name kafkaBroker apache/kafka:latest
 docker exec --workdir /opt/kafka/bin/ -it kafkaBroker sh
 ```
 <br>
-Alternatively you can use the dockerfile in the kafka directory: <br>
-
-```
-docker build -t my-kafka-image .
-docker run -d -p 9092:9092 --name kafkaBroker my-kafka-image
-```
 
 ## Setup tables main
 
