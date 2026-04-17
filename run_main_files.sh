@@ -1,3 +1,13 @@
+export KAFKA_HOME=/opt/kafka_2.13-3.8.0
+export PATH=$KAFKA_HOME/bin:$PATH
+
+$KAFKA_HOME/bin/zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties &
+$KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties &
+sleep 20 && echo "Waiting for 20 seconds before proceeding with creating kafka topic and starting java programs"
+$KAFKA_HOME/bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic customer_events_topic
+# $KAFKA_HOME/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic customer_events_topic
+# $KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic customer_events_topic --from-beginning
+
 java -cp data-integration-project.jar main.SetupTablesMain -d company -l /home/logs
 java -cp data-integration-project.jar main.SampleDataMain -t employee -l /home/logs -o /home/sample_data/employee -n 1000
 java -cp data-integration-project.jar main.SampleDataMain -t customer_event -l /home/logs -o /home/sample_data/customer_event -n 10000

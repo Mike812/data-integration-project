@@ -75,7 +75,7 @@ public class KafkaProducerMain {
                 case "factory":
                     CustomerEventFactory customerEventFactory = new CustomerEventFactory();
                     customerEvents =
-                            customerEventFactory.createCustomerEventSampleData(0, 1000);
+                            customerEventFactory.createCustomerEventSampleData(0, 1000, false);
                     break;
             }
 
