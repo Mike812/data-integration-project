@@ -22,7 +22,7 @@ public class CustomerEventFactory {
         this.salesAmounts = IntStream.range(1, 10).toArray();
     }
 
-    public List<CustomerEvent> createCustomerEventSampleData(int customerEventId, int numberOfEvents){
+    public List<CustomerEvent> createCustomerEventSampleData(int customerEventId, int numberOfEvents, boolean databaseEntry){
         List<CustomerEvent> customerEvents = new ArrayList<>();
         Random random = new Random();
         for(int i=0;i<numberOfEvents;i++){
@@ -32,10 +32,25 @@ public class CustomerEventFactory {
             int salesAmount = this.salesAmounts[random.nextInt(this.salesAmounts.length)];
             String eventTimestamp = InputOutputUtils.getTimestampForSampleData("yyyy-MM-dd HH:mm:ss", i, numberOfEvents);
 
-            customerEvents.add(new CustomerEvent(customerEventId, customerName, productName, salesAmount,
-                    eventTimestamp));
+            if(databaseEntry){
+                customerEvents.add(new CustomerEvent(customerEventId, customerName, productName, salesAmount,
+                        eventTimestamp));
+            } else {
+                customerEvents.add(new CustomerEvent(customerName, productName, salesAmount, eventTimestamp));
+            }
         }
 
         return customerEvents;
+    }
+
+    public static List<CustomerEvent> addIdToCustomerEvents(List<CustomerEvent> customerEvents, int maxId){
+        List<CustomerEvent> customerEventsWithId = new ArrayList<>();
+        for (CustomerEvent customerEvent : customerEvents){
+            maxId += 1;
+            customerEvent.setCustomerEventId(maxId);
+            customerEventsWithId.add(customerEvent);
+        }
+
+        return customerEventsWithId;
     }
 }

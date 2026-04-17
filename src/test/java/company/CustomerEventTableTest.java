@@ -21,6 +21,7 @@ public class CustomerEventTableTest {
     public void testInsertIntoTableString() {
         String pathToJson = "json/customer_events_12-04-2026_17-16-03.json";
         List<CustomerEvent> customerEvents = readCustomerEventsFromJsonFile(pathToJson);
+        List<CustomerEvent> customerEventsJsonWithId = CustomerEventFactory.addIdToCustomerEvents(customerEvents, 0);
         String expectedString = "INSERT INTO customer_event VALUES  (1, 'Seetrue Technologies', 'Platform as a Service', 4, '2025-04-12 17:16:03'), " +
                 "(2, 'Cloudsmartz', 'Platform as a Service', 2, '2025-04-12 18:16:03'), " +
                 "(3, 'Skelia', 'Software as a Service', 9, '2025-04-12 19:16:03'), " +
@@ -32,7 +33,7 @@ public class CustomerEventTableTest {
                 "(9, 'Techasoft', 'Software as a Service', 7, '2025-04-13 01:16:03'), " +
                 "(10, 'Earthoptics', 'Platform as a Service', 6, '2025-04-13 02:16:03');";
 
-        String result = CustomerEventTable.getInsertIntoTableString(CustomerEventTable.TABLE_NAME, customerEvents);
+        String result = CustomerEventTable.getInsertIntoTableString(CustomerEventTable.TABLE_NAME, customerEventsJsonWithId);
         assertEquals(expectedString, result);
     }
 }
