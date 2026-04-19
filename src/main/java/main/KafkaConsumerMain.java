@@ -2,7 +2,6 @@ package main;
 
 import company.CustomerEvent;
 import company.CustomerEventFactory;
-import company.CustomerEventTable;
 import company.SqlStatements;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -19,7 +18,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 public class KafkaConsumerMain {
 
@@ -29,9 +31,9 @@ public class KafkaConsumerMain {
             Properties kafkaProperties = new Properties();
             InputStream inputStream = KafkaConsumerMain.class.getClassLoader().getResourceAsStream("properties/kafka.properties");
             kafkaProperties.load(inputStream);
-            String bootstrapServer = kafkaProperties.getProperty("bootstrap_server");
-            String kafkaTopic = kafkaProperties.getProperty("kafka_topic");
-            String consumerGroup = kafkaProperties.getProperty("consumer_group");
+            String bootstrapServer = kafkaProperties.getProperty("bootstrap.server");
+            String kafkaTopic = kafkaProperties.getProperty("kafka.topic");
+            String consumerGroup = kafkaProperties.getProperty("consumer.group");
 
             // Create Consumer Properties
             Properties kafkaConsumerProperties = new Properties();
@@ -63,22 +65,12 @@ public class KafkaConsumerMain {
                             " Offset: " + record.offset()
                     );
                 }
-                //consumer.commitSync();
 
                 if(!customerEvents.isEmpty()){
-                    Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
-
-                    List<CustomerEvent> customerEventsAggregated = new ArrayList<>();
-                    for(Map.Entry<String, Integer> mapEntry : summedUpSalesAmounts.entrySet()){
-                        String[] customerAndProductNames = mapEntry.getKey().split("_");
-                        String customerName = customerAndProductNames[0];
-                        String productName = customerAndProductNames[1];
-                        int salesAmount = mapEntry.getValue();
-                        customerEventsAggregated.add(new CustomerEvent(customerName, productName, salesAmount, currentTimestamp));
-                    }
-                    int maxId = SqlStatements.getMaxIdFromTable(statement, CustomerEventTable.TABLE_NAME, CustomerEventTable.ID_COLUMN);
-                    List<CustomerEvent> allCustomerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(customerEventsAggregated, maxId);
-                    SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME, allCustomerEventsWithId);
+                    List<CustomerEvent> customerEventsAggregated = CustomerEventFactory.getListWithSummedUpSalesAmounts(customerEvents, currentTimestamp);
+                    int result = SqlStatements.insertCustomerEventsIntoTable(connection, statement, customerEventsAggregated);
+                    // commit offsets after processing of data
+                    consumer.commitSync();
                 }
             }
         } catch (IOException e){
@@ -86,19 +78,5 @@ public class KafkaConsumerMain {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Map<String, Integer> getMapWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents){
-        Map<String, Integer> customerSalesMap = new HashMap<>();
-        for(CustomerEvent customerEvent : customerEvents){
-            String key = customerEvent.getCustomerName() + "_" + customerEvent.getProductName();
-            if(customerSalesMap.get(key) != null){
-                customerSalesMap.put(key, customerSalesMap.get(key) + customerEvent.getSalesAmount());
-            } else {
-                customerSalesMap.put(key, customerEvent.getSalesAmount());
-            }
-        }
-
-        return customerSalesMap;
     }
 }

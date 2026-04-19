@@ -164,6 +164,21 @@ public class SqlStatements {
         return result;
     }
 
+    public static int insertCustomerEventsIntoTable(Connection connection, Statement statement, List<CustomerEvent> customerEvents){
+        int result = -1;
+        try {
+            int maxId = SqlStatements.getMaxIdFromTable(statement, CustomerEventTable.TABLE_NAME, CustomerEventTable.ID_COLUMN);
+            List<CustomerEvent> customerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(customerEvents, maxId);
+            result = SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME, customerEventsWithId);
+            System.out.println("Values were inserted successfully into customer events table");
+        } catch (SQLException e){
+            System.out.println("Insert into table failed");
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public static List<Employee> createEmployeeListFromSqlResult(ResultSet result) {
         List<Employee> employees = new ArrayList<>();
         try {

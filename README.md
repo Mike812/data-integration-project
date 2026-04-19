@@ -21,7 +21,7 @@ Alternative 2: Use the dockerfile in the project to run the java code there and 
 
 ```
 docker build -t my-postgres-image .
-docker run --name postgres-container -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=company -p 7432:5432 -p 9093:9092 -p 4040:4040 my-postgres-image 
+docker run --name postgres-container -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=company -p 7432:5432 -p 9092:9092 -p 4040:4040 my-postgres-image 
 ```
 <br>
 
