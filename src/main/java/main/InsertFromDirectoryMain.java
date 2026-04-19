@@ -98,7 +98,7 @@ public class InsertFromDirectoryMain {
             logger.info("Sql problem in main method");
             logger.info(e.getMessage());
         } catch (ParseException e){
-            System.out.println(e.getMessage());
+            logger.info(e.getMessage());
             formatter.printHelp("Setup tables main", options);
         } catch (IOException e) {
             logger.info("Input output problem in main method");

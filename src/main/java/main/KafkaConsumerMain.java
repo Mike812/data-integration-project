@@ -3,6 +3,7 @@ package main;
 import company.CustomerEvent;
 import company.CustomerEventFactory;
 import company.SqlStatements;
+import org.apache.commons.cli.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -22,12 +23,33 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 public class KafkaConsumerMain {
 
     public static void main(String[] args){
 
+        Options options = new Options();
+        Option logDirOption = new Option("l", "log_dir", true, "directory for log files");
+        logDirOption.setRequired(true);
+        options.addOption(logDirOption);
+
+        String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
+        String logTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
+        Logger logger = Logger.getLogger("Kafka Consumer Main Log");
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+
+        FileHandler fh;
         try {
+            CommandLine cmd = parser.parse(options, args);
+            String logDir = cmd.getOptionValue("log_dir");
+            String logFile = logDir + "/" + KafkaConsumerMain.class.getSimpleName() + "_" + logTimestamp + ".log";
+            fh = new FileHandler(logFile, true);
+            logger.addHandler(fh);
+
             Properties kafkaProperties = new Properties();
             InputStream inputStream = KafkaConsumerMain.class.getClassLoader().getResourceAsStream("properties/kafka.properties");
             kafkaProperties.load(inputStream);
@@ -49,34 +71,39 @@ public class KafkaConsumerMain {
             PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils("company");
             Connection connection = postgresSqlConnection.getPostgreSqlConnection();
             Statement statement = postgresSqlConnection.getSqlStatement(connection);
-            //List<CustomerEvent> allCustomerEvents = JsonUtils.readCustomerEventsFromDirectory("C:\\data-integration-project\\sample_data\\json\\customer_event");
+
+            List<CustomerEvent> customerEvents = new ArrayList<>();
+            int numberOfEvents = 20000;
 
             while (true){
                 ConsumerRecords<String, CustomerEvent> consumerRecords = consumer.poll(Duration.ofMillis(100));
-                List<CustomerEvent> customerEvents = new ArrayList<>();
-                String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
+                //logger.info("Number of polled consumer records: " + consumerRecords.count());
                 String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
                 for (ConsumerRecord<String, CustomerEvent> record : consumerRecords) {
                     CustomerEvent customerEvent = record.value();
                     customerEvents.add(customerEvent);
-                    System.out.println("Key: " + record.key() +
-                            " Value: " + customerEvent +
-                            " Partition: " + record.partition() +
-                            " Offset: " + record.offset()
-                    );
+                    //System.out.println("Key: " + record.key() + " Value: " + customerEvent + " Partition: " + record.partition() +
+                      //      " Offset: " + record.offset());
                 }
 
-                if(!customerEvents.isEmpty()){
+                if(customerEvents.size() >= numberOfEvents){
+                    logger.info("Process collected customer event list with size: " + customerEvents.size());
                     List<CustomerEvent> customerEventsAggregated = CustomerEventFactory.getListWithSummedUpSalesAmounts(customerEvents, currentTimestamp);
                     int result = SqlStatements.insertCustomerEventsIntoTable(connection, statement, customerEventsAggregated);
-                    // commit offsets after processing of data
-                    consumer.commitSync();
+                    if(result == 0){
+                        logger.info("Successfully inserted aggregated customer events");
+                    }
+                    customerEvents = new ArrayList<>();
                 }
+                // commit offsets after processing of data
+                consumer.commitSync();
             }
         } catch (IOException e){
             e.printStackTrace();
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
+        } catch (ParseException e) {
+            logger.info(e.getMessage());
+            formatter.printHelp("Kafka Consumer Main", options);        }
     }
 }

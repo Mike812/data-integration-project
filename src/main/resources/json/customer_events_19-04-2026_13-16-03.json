@@ -1,0 +1,48 @@
+{
+  "Customer events" : [ {
+    "customer_name" : "Seetrue Technologies",
+    "product_name" : "Platform as a Service",
+    "sales_amount" : 4,
+    "event_timestamp" : "2025-04-12 17:16:03"
+  }, {
+    "customer_name" : "Seetrue Technologies",
+    "product_name" : "Platform as a Service",
+    "sales_amount" : 4,
+    "event_timestamp" : "2025-04-12 17:16:03"
+  }, {
+    "customer_name" : "Skelia",
+    "product_name" : "Software as a Service",
+    "sales_amount" : 9,
+    "event_timestamp" : "2025-04-12 19:16:03"
+  }, {
+    "customer_name" : "Techasoft",
+    "product_name" : "Software as a Service",
+    "sales_amount" : 7,
+    "event_timestamp" : "2025-04-13 01:16:03"
+  },{
+    "customer_name" : "Techasoft",
+    "product_name" : "Software as a Service",
+    "sales_amount" : 6,
+    "event_timestamp" : "2025-04-13 01:16:03"
+  },{
+    "customer_name" : "Techasoft",
+    "product_name" : "Software as a Service",
+    "sales_amount" : 7,
+    "event_timestamp" : "2025-04-13 01:16:03"
+  },{
+    "customer_name" : "Techasoft",
+    "product_name" : "Platform as a Service",
+    "sales_amount" : 6,
+    "event_timestamp" : "2025-04-13 01:16:03"
+  }, {
+    "customer_name" : "Earthoptics",
+    "product_name" : "Platform as a Service",
+    "sales_amount" : 6,
+    "event_timestamp" : "2025-04-13 02:16:03"
+  },{
+    "customer_name" : "Earthoptics",
+    "product_name" : "Software as a Service",
+    "sales_amount" : 6,
+    "event_timestamp" : "2025-04-13 02:16:03"
+  } ]
+}

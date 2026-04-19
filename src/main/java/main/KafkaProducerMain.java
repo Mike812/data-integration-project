@@ -41,7 +41,8 @@ public class KafkaProducerMain {
             CommandLine cmd = parser.parse(options, args);
             String database = cmd.getOptionValue("database");
             String inputDir = cmd.getOptionValue("input_dir");
-            String runMode = "directory";
+            String runMode = "factory";
+            int numberOfEvents = 10000;
             if (inputDir != null){
                 runMode = "directory";
             }
@@ -75,7 +76,7 @@ public class KafkaProducerMain {
                 case "factory":
                     CustomerEventFactory customerEventFactory = new CustomerEventFactory();
                     customerEvents =
-                            customerEventFactory.createCustomerEventSampleData(0, 1000, false);
+                            customerEventFactory.createCustomerEventSampleData(0, numberOfEvents, false);
                     break;
             }
 

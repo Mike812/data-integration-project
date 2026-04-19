@@ -7,7 +7,7 @@ public class SparkStreamingMain {
 
     public static void main(String[] args){
         SparkSession sparkSession = SparkSession.builder()
-                .appName("Spark Streaming Test")
+                .appName("Spark Streaming Main")
                 .master("local")
                 .getOrCreate();
 

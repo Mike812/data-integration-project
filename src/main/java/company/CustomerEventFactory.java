@@ -52,6 +52,7 @@ public class CustomerEventFactory {
         return customerEventsWithId;
     }
 
+    // Group kafka consumer records by customer and product name and sum up the sales amounts
     public static Map<String, Integer> getMapWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents){
         Map<String, Integer> customerSalesMap = new HashMap<>();
         for(CustomerEvent customerEvent : customerEvents){
@@ -66,6 +67,7 @@ public class CustomerEventFactory {
         return customerSalesMap;
     }
 
+    // Reproduce all customer fields after aggregating sales amounts
     public static List<CustomerEvent> getListWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents, String currentTimestamp){
         Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
 
