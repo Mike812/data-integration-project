@@ -42,6 +42,7 @@ public class KafkaProducerMain {
             String database = cmd.getOptionValue("database");
             String inputDir = cmd.getOptionValue("input_dir");
             String runMode = "factory";
+            int numberOfEvents = 10000;
             if (inputDir != null){
                 runMode = "directory";
             }
@@ -53,8 +54,8 @@ public class KafkaProducerMain {
             Properties kafkaProperties = new Properties();
             InputStream inputStream = KafkaProducerMain.class.getClassLoader().getResourceAsStream("properties/kafka.properties");
             kafkaProperties.load(inputStream);
-            String bootstrapServer = kafkaProperties.getProperty("bootstrap_server");
-            String kafkaTopic = kafkaProperties.getProperty("kafka_topic");
+            String bootstrapServer = kafkaProperties.getProperty("bootstrap.server");
+            String kafkaTopic = kafkaProperties.getProperty("kafka.topic");
 
             Properties kafkaProducerProps = new Properties();
             kafkaProducerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
@@ -75,7 +76,7 @@ public class KafkaProducerMain {
                 case "factory":
                     CustomerEventFactory customerEventFactory = new CustomerEventFactory();
                     customerEvents =
-                            customerEventFactory.createCustomerEventSampleData(0, 1000, false);
+                            customerEventFactory.createCustomerEventSampleData(0, numberOfEvents, false);
                     break;
             }
 
@@ -83,7 +84,7 @@ public class KafkaProducerMain {
                 String key = "key-"+i;
                 CustomerEvent value = customerEvents.get(i);
                 RecordMetadata recordMetadata = kafkaProducer.send(new ProducerRecord<>(kafkaTopic, key, value)).get();
-                System.out.printf("Sent record(key=%s value=%s) meta(partition=%d, offset=%d)%n", key, value, recordMetadata.partition(), recordMetadata.offset());
+                // System.out.printf("Sent record(key=%s value=%s) meta(partition=%d, offset=%d)%n", key, value, recordMetadata.partition(), recordMetadata.offset());
             }
         } catch (IOException e){
             e.printStackTrace();

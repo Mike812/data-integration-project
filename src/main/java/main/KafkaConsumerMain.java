@@ -1,29 +1,61 @@
 package main;
 
 import company.CustomerEvent;
+import company.CustomerEventFactory;
+import company.SqlStatements;
+import org.apache.commons.cli.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import utils.CustomerEventDeserializer;
+import utils.InputOutputUtils;
+import utils.PostgreSqlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 public class KafkaConsumerMain {
 
     public static void main(String[] args){
 
+        Options options = new Options();
+        Option logDirOption = new Option("l", "log_dir", true, "directory for log files");
+        logDirOption.setRequired(true);
+        options.addOption(logDirOption);
+
+        String timestampFormat = "dd-MM-yyyy_HH-mm-ss";
+        String logTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
+        Logger logger = Logger.getLogger("Kafka Consumer Main Log");
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+
+        FileHandler fh;
         try {
+            CommandLine cmd = parser.parse(options, args);
+            String logDir = cmd.getOptionValue("log_dir");
+            String logFile = logDir + "/" + KafkaConsumerMain.class.getSimpleName() + "_" + logTimestamp + ".log";
+            fh = new FileHandler(logFile, true);
+            logger.addHandler(fh);
+
             Properties kafkaProperties = new Properties();
             InputStream inputStream = KafkaConsumerMain.class.getClassLoader().getResourceAsStream("properties/kafka.properties");
             kafkaProperties.load(inputStream);
-            String bootstrapServer = kafkaProperties.getProperty("bootstrap_server");
-            String kafkaTopic = kafkaProperties.getProperty("kafka_topic");
-            String consumerGroup = kafkaProperties.getProperty("consumer_group");
+            String bootstrapServer = kafkaProperties.getProperty("bootstrap.server");
+            String kafkaTopic = kafkaProperties.getProperty("kafka.topic");
+            String consumerGroup = kafkaProperties.getProperty("consumer.group");
 
             // Create Consumer Properties
             Properties kafkaConsumerProperties = new Properties();
@@ -36,36 +68,42 @@ public class KafkaConsumerMain {
             KafkaConsumer<String, CustomerEvent> consumer = new KafkaConsumer<>(kafkaConsumerProperties);
             consumer.subscribe(Collections.singletonList(kafkaTopic));
 
+            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils("company");
+            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
+            Statement statement = postgresSqlConnection.getSqlStatement(connection);
+
+            List<CustomerEvent> customerEvents = new ArrayList<>();
+            int numberOfEvents = 20000;
+
             while (true){
                 ConsumerRecords<String, CustomerEvent> consumerRecords = consumer.poll(Duration.ofMillis(100));
-                List<CustomerEvent> customerEvents = new ArrayList<>();
+                //logger.info("Number of polled consumer records: " + consumerRecords.count());
+                String currentTimestamp = InputOutputUtils.getCurrentTimestamp(timestampFormat);
                 for (ConsumerRecord<String, CustomerEvent> record : consumerRecords) {
                     CustomerEvent customerEvent = record.value();
                     customerEvents.add(customerEvent);
-                    System.out.println("Key: " + record.key() +
-                            " Value: " + customerEvent +
-                            " Partition: " + record.partition() +
-                            " Offset: " + record.offset()
-                    );
+                    //System.out.println("Key: " + record.key() + " Value: " + customerEvent + " Partition: " + record.partition() +
+                      //      " Offset: " + record.offset());
                 }
-                //consumer.commitSync();
-                Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
+
+                if(customerEvents.size() >= numberOfEvents){
+                    logger.info("Process collected customer event list with size: " + customerEvents.size());
+                    List<CustomerEvent> customerEventsAggregated = CustomerEventFactory.getListWithSummedUpSalesAmounts(customerEvents, currentTimestamp);
+                    int result = SqlStatements.insertCustomerEventsIntoTable(connection, statement, customerEventsAggregated);
+                    if(result == 0){
+                        logger.info("Successfully inserted aggregated customer events");
+                    }
+                    customerEvents = new ArrayList<>();
+                }
+                // commit offsets after processing of data
+                consumer.commitSync();
             }
         } catch (IOException e){
             e.printStackTrace();
-        }
-    }
-
-    public static Map<String, Integer> getMapWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents){
-        Map<String, Integer> customerSalesMap = new HashMap<>();
-        for(CustomerEvent customerEvent : customerEvents){
-            String key = customerEvent.getCustomerName();
-            if(customerSalesMap.get(key) != null){
-                customerSalesMap.put(key, customerSalesMap.get(key) + customerEvent.getSalesAmount());
-            }
-            customerSalesMap.put(key, customerEvent.getSalesAmount());
-        }
-
-        return customerSalesMap;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            logger.info(e.getMessage());
+            formatter.printHelp("Kafka Consumer Main", options);        }
     }
 }

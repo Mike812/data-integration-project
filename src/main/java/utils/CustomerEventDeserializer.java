@@ -12,10 +12,10 @@ public class CustomerEventDeserializer implements Deserializer<CustomerEvent> {
     public CustomerEvent deserialize(String s, byte[] bytes) {
         try {
             if (bytes == null){
-                System.out.println("Null received at deserializing");
+                // System.out.println("Null received at deserializing");
                 return null;
             }
-            System.out.println("Deserializing...");
+            // System.out.println("Deserializing...");
             return objectMapper.readValue(new String(bytes, "UTF-8"), CustomerEvent.class);
         } catch (Exception e) {
             throw new SerializationException("Error when deserializing byte[] to CustomerEvent");

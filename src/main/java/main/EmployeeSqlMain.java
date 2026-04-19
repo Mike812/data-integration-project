@@ -17,7 +17,7 @@ public class EmployeeSqlMain {
     public static void main(String[] args){
         try{
             String database = "company";
-            String inputTable = EmployeeTable.TABLE_NAME;
+            String inputTable = CustomerEventTable.TABLE_NAME;
             int numberOfEmployeesToCreate = 1000;
             String runMode = "select";
 
@@ -30,12 +30,21 @@ public class EmployeeSqlMain {
             switch (runMode){
                 case "select":
                     ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, inputTable);
-                    List<Employee> employees = SqlStatements.createEmployeeListFromSqlResult(selectAllResult);
-                    for(Employee employee : employees){
-                        System.out.println(employee.toString());
+                    if (inputTable.equals(EmployeeTable.TABLE_NAME)){
+                        List<Employee> employees = SqlStatements.createEmployeeListFromSqlResult(selectAllResult);
+                        for(Employee employee : employees){
+                            System.out.println(employee.toString());
+                        }
+                        selectAllResult.close();
+                        break;
+                    } else {
+                        List<CustomerEvent> customerEvents = SqlStatements.createCustomerEventListFromSqlResult(selectAllResult);
+                        for(CustomerEvent customerEvent : customerEvents){
+                            System.out.println(customerEvent.toString());
+                        }
+                        selectAllResult.close();
+                        break;
                     }
-                    selectAllResult.close();
-                    break;
                 case "truncate":
                     SqlStatements.truncateTable(connection, inputTable);
                     break;

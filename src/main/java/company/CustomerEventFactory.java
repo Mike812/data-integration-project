@@ -2,9 +2,7 @@ package company;
 
 import utils.InputOutputUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 
 /**
@@ -52,5 +50,36 @@ public class CustomerEventFactory {
         }
 
         return customerEventsWithId;
+    }
+
+    // Group kafka consumer records by customer and product name and sum up the sales amounts
+    public static Map<String, Integer> getMapWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents){
+        Map<String, Integer> customerSalesMap = new HashMap<>();
+        for(CustomerEvent customerEvent : customerEvents){
+            String key = customerEvent.getCustomerName() + "_" + customerEvent.getProductName();
+            if(customerSalesMap.get(key) != null){
+                customerSalesMap.put(key, customerSalesMap.get(key) + customerEvent.getSalesAmount());
+            } else {
+                customerSalesMap.put(key, customerEvent.getSalesAmount());
+            }
+        }
+
+        return customerSalesMap;
+    }
+
+    // Reproduce all customer fields after aggregating sales amounts
+    public static List<CustomerEvent> getListWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents, String currentTimestamp){
+        Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
+
+        List<CustomerEvent> customerEventsAggregated = new ArrayList<>();
+        for(Map.Entry<String, Integer> mapEntry : summedUpSalesAmounts.entrySet()){
+            String[] customerAndProductNames = mapEntry.getKey().split("_");
+            String customerName = customerAndProductNames[0];
+            String productName = customerAndProductNames[1];
+            int salesAmount = mapEntry.getValue();
+            customerEventsAggregated.add(new CustomerEvent(customerName, productName, salesAmount, currentTimestamp));
+        }
+
+        return customerEventsAggregated;
     }
 }

@@ -24,7 +24,7 @@ public class PostgreSqlUtils {
                     .getResourceAsStream("properties/db-config.properties");
             properties.load(input);
             this.jdbcUrl = properties.getProperty("url") + database;
-            this.userName = properties.getProperty("username");
+            this.userName = properties.getProperty("user.name");
             this.password = properties.getProperty("password");
         } catch (IOException e){
             System.out.println("Read database config from properties file failed.");
