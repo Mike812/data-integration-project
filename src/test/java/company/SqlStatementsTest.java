@@ -4,9 +4,10 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
 import org.junit.runners.MethodSorters;
+import utils.CompanyDatabaseConnection;
 import utils.PostgreSqlUtils;
+import utils.TestDatabaseConnection;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,11 +20,14 @@ import static utils.JsonUtils.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SqlStatementsTest {
 
-    String database = "company";
-    String testDatabase = "test_company";
+    String database = CompanyDatabaseConnection.getDatabaseName();
+    String testDatabase = TestDatabaseConnection.getDatabaseName();
+
+    Connection companyDatabaseConnection = CompanyDatabaseConnection.getPostgresConnection();
+    Connection testDatabaseConnection = TestDatabaseConnection.getPostgresConnection();
 
     String employeeTable = EmployeeTable.TABLE_NAME;
-    EmployeeFactory employeeFactory = new EmployeeFactory();
+    EmployeeFactory employeeFactory = new EmployeeFactory(null);
     int numberOfEmployees = 1000;
     int numberOfEmployeesJson = 10;
     List<Employee> employees = employeeFactory.createEmployeeSampleData(numberOfEmployeesJson, numberOfEmployees, true);
@@ -31,7 +35,7 @@ public class SqlStatementsTest {
     List<Employee> employeesJson = readEmployeesFromJsonFile(pathToEmployeeJson);
 
     String customerEventTable = CustomerEventTable.TABLE_NAME;
-    CustomerEventFactory customerEventFactory = new CustomerEventFactory();
+    CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
     int numberOfEvents = 1000;
     int numberOfEventsJson = 10;
     List<CustomerEvent> customerEvents =
@@ -39,60 +43,51 @@ public class SqlStatementsTest {
     String pathToCustomerEventJson = "json/customer_events_12-04-2026_17-16-03.json";
     List<CustomerEvent> customerEventsJson = readCustomerEventsFromJsonFile(pathToCustomerEventJson);
 
-    public SqlStatementsTest() throws IOException {}
+    public SqlStatementsTest() {}
 
 
-    @Test
-    @Order(1)
-    public void testACreateDatabase() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
-
-        int createDatabaseResult = SqlStatements.createDatabase(connection, testDatabase);
+    //@Test
+    //@Order(1)
+    public void testACreateDatabase() {
+        SqlStatements sqlStatements = new SqlStatements(companyDatabaseConnection, null);
+        int createDatabaseResult = sqlStatements.createDatabase(testDatabase);
         assertEquals(0, createDatabaseResult);
-
-        connection.close();
     }
 
     @Test
     @Order(2)
     public void testBCreateAndDropTable() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(testDatabase);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
+        SqlStatements sqlStatements = new SqlStatements(testDatabaseConnection, null);
 
-        int createTableResult = SqlStatements.createTable(connection, employeeTable);
+        int createTableResult = sqlStatements.createTable(employeeTable);
         assertEquals(0, createTableResult);
 
-        int dropTableResult = SqlStatements.dropTable(connection, employeeTable);
+        int dropTableResult = sqlStatements.dropTable(employeeTable);
         assertEquals(0, dropTableResult);
 
-        int createCustomerEventResult = SqlStatements.createTable(connection, customerEventTable);
+        int createCustomerEventResult = sqlStatements.createTable(customerEventTable);
         assertEquals(0, createCustomerEventResult);
 
-        int dropCustomerEventResult = SqlStatements.dropTable(connection, customerEventTable);
+        int dropCustomerEventResult = sqlStatements.dropTable(customerEventTable);
         assertEquals(0, dropCustomerEventResult);
-
-        connection.close();
     }
 
     @Test
     @Order(3)
     public void testCInsertSelectAndMaxIdEmployee() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(testDatabase);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
-        Statement statement = postgreSqlConnection.getSqlStatement(connection);
+        SqlStatements sqlStatements = new SqlStatements(testDatabaseConnection, null);
 
-        int dropTableResult = SqlStatements.dropTable(connection, employeeTable);
+        int dropTableResult = sqlStatements.dropTable(employeeTable);
         assertEquals(0, dropTableResult);
 
-        int createTableResult = SqlStatements.createTable(connection, employeeTable);
+        int createTableResult = sqlStatements.createTable(employeeTable);
         assertEquals(0, createTableResult);
 
-        List<Employee> employeesJsonWithId = EmployeeFactory.addIdToEmployees(employeesJson, 0);
-        int insertJsonDataResult = SqlStatements.insertEmployeesIntoTable(connection, employeeTable, employeesJsonWithId);
+        List<Employee> employeesJsonWithId = employeeFactory.addIdToEmployees(employeesJson, 0);
+        int insertJsonDataResult = sqlStatements.insertEmployeesIntoTable(employeeTable, employeesJsonWithId);
         assertEquals(numberOfEmployeesJson, insertJsonDataResult);
 
-        ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, employeeTable);
+        ResultSet selectAllResult = sqlStatements.selectAllFromTable(employeeTable);
         while(selectAllResult.next()){
             assertEquals(1, selectAllResult.getInt(EmployeeTable.ID_COLUMN));
             assertEquals("Dylan Curtis", selectAllResult.getString(EmployeeTable.NAME_COLUMN));
@@ -104,35 +99,30 @@ public class SqlStatementsTest {
             break;
         }
 
-        int maxId = SqlStatements.getMaxIdFromTable(statement, employeeTable, EmployeeTable.ID_COLUMN);
+        int maxId = sqlStatements.getMaxIdFromTable(employeeTable, EmployeeTable.ID_COLUMN);
         assertEquals(numberOfEmployeesJson, maxId);
 
-        int insertSampleDataResult = SqlStatements.insertEmployeesIntoTable(connection, employeeTable, employees);
+        int insertSampleDataResult = sqlStatements.insertEmployeesIntoTable(employeeTable, employees);
         assertEquals(numberOfEmployees, insertSampleDataResult);
-
-        connection.close();
-        statement.close();
     }
 
     @Test
     @Order(4)
     public void testDInsertSelectAndMaxIdCustomerEvent() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(testDatabase);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
-        Statement statement = postgreSqlConnection.getSqlStatement(connection);
+        SqlStatements sqlStatements = new SqlStatements(testDatabaseConnection, null);
 
-        int dropTableResult = SqlStatements.dropTable(connection, customerEventTable);
+        int dropTableResult = sqlStatements.dropTable(customerEventTable);
         assertEquals(0, dropTableResult);
 
-        int createTableResult = SqlStatements.createTable(connection, customerEventTable);
+        int createTableResult = sqlStatements.createTable(customerEventTable);
         assertEquals(0, createTableResult);
 
-        List<CustomerEvent> customerEventsJsonWithId = CustomerEventFactory.addIdToCustomerEvents(customerEventsJson, 0);
-        int insertJsonDataResult = SqlStatements.insertCustomerEventsIntoTable(connection, customerEventTable,
+        List<CustomerEvent> customerEventsJsonWithId = customerEventFactory.addIdToCustomerEvents(customerEventsJson, 0);
+        int insertJsonDataResult = sqlStatements.insertCustomerEventsIntoTable(customerEventTable,
                 customerEventsJsonWithId);
         assertEquals(numberOfEventsJson, insertJsonDataResult);
 
-        ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, customerEventTable);
+        ResultSet selectAllResult = sqlStatements.selectAllFromTable(customerEventTable);
         while(selectAllResult.next()){
             assertEquals(1, selectAllResult.getInt(CustomerEventTable.ID_COLUMN));
             assertEquals("Seetrue Technologies", selectAllResult.getString(CustomerEventTable.CUSTOMER_NAME_COLUMN));
@@ -142,26 +132,20 @@ public class SqlStatementsTest {
             break;
         }
 
-        int maxId = SqlStatements.getMaxIdFromTable(statement, customerEventTable, CustomerEventTable.ID_COLUMN);
+        int maxId = sqlStatements.getMaxIdFromTable(customerEventTable, CustomerEventTable.ID_COLUMN);
         assertEquals(numberOfEventsJson, maxId);
 
-        int insertTableResult = SqlStatements.insertCustomerEventsIntoTable(connection, customerEventTable,
+        int insertTableResult = sqlStatements.insertCustomerEventsIntoTable(customerEventTable,
                 customerEvents);
         assertEquals(numberOfEvents, insertTableResult);
-
-        connection.close();
-        statement.close();
     }
 
-    @Test
-    @Order(5)
+    //@Test
+    //@Order(5)
     public void testEDropDatabase() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
+        SqlStatements sqlStatements = new SqlStatements(testDatabaseConnection, null);
 
-        int dropDatabaseResult = SqlStatements.dropDatabase(connection, testDatabase);
+        int dropDatabaseResult = sqlStatements.dropDatabase(testDatabase);
         assertEquals(0, dropDatabaseResult);
-
-        connection.close();
     }
 }

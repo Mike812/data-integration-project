@@ -1,23 +1,20 @@
 package main;
 
-import company.CustomerEvent;
-import company.CustomerEventFactory;
-import company.SqlStatements;
+import company.*;
 import org.apache.commons.cli.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.LoggerFactory;
+import utils.CompanyDatabaseConnection;
 import utils.CustomerEventDeserializer;
 import utils.InputOutputUtils;
-import utils.PostgreSqlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +24,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 public class KafkaConsumerMain {
+
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(KafkaConsumerMain.class);
 
     public static void main(String[] args){
 
@@ -68,12 +67,12 @@ public class KafkaConsumerMain {
             KafkaConsumer<String, CustomerEvent> consumer = new KafkaConsumer<>(kafkaConsumerProperties);
             consumer.subscribe(Collections.singletonList(kafkaTopic));
 
-            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils("company");
-            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
-            Statement statement = postgresSqlConnection.getSqlStatement(connection);
+            Connection companyDatabaseConnection = CompanyDatabaseConnection.getPostgresConnection();
+            SqlStatements sqlStatements = new SqlStatements(companyDatabaseConnection, logger);
+            CustomerEventFactory customerEventFactory = new CustomerEventFactory(logger);
 
             List<CustomerEvent> customerEvents = new ArrayList<>();
-            int numberOfEvents = 20000;
+            int databaseThreshold = 20000;
 
             while (true){
                 ConsumerRecords<String, CustomerEvent> consumerRecords = consumer.poll(Duration.ofMillis(100));
@@ -86,10 +85,12 @@ public class KafkaConsumerMain {
                       //      " Offset: " + record.offset());
                 }
 
-                if(customerEvents.size() >= numberOfEvents){
+                if(customerEvents.size() >= databaseThreshold){
                     logger.info("Process collected customer event list with size: " + customerEvents.size());
-                    List<CustomerEvent> customerEventsAggregated = CustomerEventFactory.getListWithSummedUpSalesAmounts(customerEvents, currentTimestamp);
-                    int result = SqlStatements.insertCustomerEventsIntoTable(connection, statement, customerEventsAggregated);
+                    List<CustomerEvent> customerEventsAggregated = customerEventFactory.getListWithSummedUpSalesAmounts(customerEvents, currentTimestamp);
+                    int maxId = sqlStatements.getMaxIdFromTable(CustomerEventTable.TABLE_NAME, CustomerEventTable.ID_COLUMN);
+                    List<CustomerEvent> customerEventsWithId = customerEventFactory.addIdToCustomerEvents(customerEventsAggregated, maxId);
+                    int result = sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME, customerEventsWithId);
                     if(result == 0){
                         logger.info("Successfully inserted aggregated customer events");
                     }
@@ -99,9 +100,7 @@ public class KafkaConsumerMain {
                 consumer.commitSync();
             }
         } catch (IOException e){
-            e.printStackTrace();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.info(e.getMessage());
         } catch (ParseException e) {
             logger.info(e.getMessage());
             formatter.printHelp("Kafka Consumer Main", options);        }

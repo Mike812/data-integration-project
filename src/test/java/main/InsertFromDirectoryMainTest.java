@@ -5,13 +5,12 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import utils.PostgreSqlUtils;
+import utils.TestDatabaseConnection;
 
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -19,7 +18,11 @@ import static org.junit.Assert.assertEquals;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class InsertFromDirectoryMainTest {
 
-    String database = "company";
+    String database = TestDatabaseConnection.getDatabaseName();
+    Connection databaseConnection = TestDatabaseConnection.getPostgresConnection();
+    EmployeeFactory employeeFactory = new EmployeeFactory(null);
+    CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
+
     int samplesFirstRun = 10000;
     int samplesSecondRun = 5000;
     String logDir = "C:/data-integration-project/logs/";
@@ -51,25 +54,21 @@ public class InsertFromDirectoryMainTest {
 
     @Test
     public void testBInsertFromDirectoryMainEmployee() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
-        Statement statement = postgreSqlConnection.getSqlStatement(connection);
+        SqlStatements sqlStatements = new SqlStatements(databaseConnection, null);
 
-        SqlStatements.truncateTable(connection, EmployeeTable.TABLE_NAME);
+        sqlStatements.truncateTable(EmployeeTable.TABLE_NAME);
 
         String inputDir = jsonDir + EmployeeTable.TABLE_NAME;
         String[] args = {"-d", database, "-i", inputDir, "-l", logDir, "-t", EmployeeTable.TABLE_NAME};
         InsertFromDirectoryMain.main(args);
 
-        ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, EmployeeTable.TABLE_NAME);
-        List<Employee> employees = SqlStatements.createEmployeeListFromSqlResult(selectAllResult);
+        ResultSet selectAllResult = sqlStatements.selectAllFromTable(EmployeeTable.TABLE_NAME);
+        List<Employee> employees = employeeFactory.createEmployeeListFromSqlResult(selectAllResult);
 
         int expected = samplesFirstRun + samplesSecondRun;
         assertEquals(expected, employees.size());
 
         selectAllResult.close();
-        statement.close();
-        connection.close();
     }
 
     @Test
@@ -98,24 +97,21 @@ public class InsertFromDirectoryMainTest {
 
     @Test
     public void testDInsertFromDirectoryMainCustomerEvent() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
-        Statement statement = postgreSqlConnection.getSqlStatement(connection);
+        SqlStatements sqlStatements = new SqlStatements(databaseConnection, null);
+        CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
 
-        SqlStatements.truncateTable(connection, CustomerEventTable.TABLE_NAME);
+        sqlStatements.truncateTable(CustomerEventTable.TABLE_NAME);
 
         String inputDir = jsonDir + CustomerEventTable.TABLE_NAME;
         String[] args = {"-d", database, "-i", inputDir, "-l", logDir, "-t", CustomerEventTable.TABLE_NAME};
         InsertFromDirectoryMain.main(args);
 
-        ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, CustomerEventTable.TABLE_NAME);
-        List<CustomerEvent> customerEvents = SqlStatements.createCustomerEventListFromSqlResult(selectAllResult);
+        ResultSet selectAllResult = sqlStatements.selectAllFromTable(CustomerEventTable.TABLE_NAME);
+        List<CustomerEvent> customerEvents = customerEventFactory.createCustomerEventListFromSqlResult(selectAllResult);
 
         int expected = samplesFirstRun + samplesSecondRun;
         assertEquals(expected, customerEvents.size());
 
         selectAllResult.close();
-        statement.close();
-        connection.close();
     }
 }

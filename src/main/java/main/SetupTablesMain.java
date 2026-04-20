@@ -2,8 +2,10 @@ package main;
 
 import company.*;
 import org.apache.commons.cli.*;
+import utils.CompanyDatabaseConnection;
 import utils.InputOutputUtils;
 import utils.PostgreSqlUtils;
+import utils.TestDatabaseConnection;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -63,41 +65,40 @@ public class SetupTablesMain {
             fh = new FileHandler(logFile, true);
             logger.addHandler(fh);
 
-            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils(database);
-            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
-            Statement statement = postgresSqlConnection.getSqlStatement(connection);
+            Connection databaseConnection;
+            if(database.equals(CompanyDatabaseConnection.getDatabaseName())){
+                databaseConnection = CompanyDatabaseConnection.getPostgresConnection();
+            } else {
+                databaseConnection = TestDatabaseConnection.getPostgresConnection();
+            }
+
+            SqlStatements sqlStatements = new SqlStatements(databaseConnection, logger);
 
             logger.info("Create tables");
-            SqlStatements.createTable(connection, EmployeeTable.TABLE_NAME);
-            SqlStatements.createTable(connection, CustomerEventTable.TABLE_NAME);
+            sqlStatements.createTable(EmployeeTable.TABLE_NAME);
+            sqlStatements.createTable(CustomerEventTable.TABLE_NAME);
 
             logger.info("Truncate tables");
-            SqlStatements.truncateTable(connection, EmployeeTable.TABLE_NAME);
-            SqlStatements.truncateTable(connection, CustomerEventTable.TABLE_NAME);
+            sqlStatements.truncateTable(EmployeeTable.TABLE_NAME);
+            sqlStatements.truncateTable(CustomerEventTable.TABLE_NAME);
 
             if(numberOfEmployeeSamples>0){
                 logger.info("Create random sample data and insert values in employee");
-                EmployeeFactory empFactory = new EmployeeFactory();
+                EmployeeFactory empFactory = new EmployeeFactory(logger);
                 List<Employee> randomEmployees =
                         empFactory.createEmployeeSampleData(0, numberOfEmployeeSamples, true);
-                SqlStatements.insertEmployeesIntoTable(connection, EmployeeTable.TABLE_NAME, randomEmployees);
+                sqlStatements.insertEmployeesIntoTable(EmployeeTable.TABLE_NAME, randomEmployees);
             }
 
             if(numberOfCustomerEventSamples>0){
                 logger.info("Create random sample data and insert values in customer event");
-                CustomerEventFactory customerEventFactory = new CustomerEventFactory();
+                CustomerEventFactory customerEventFactory = new CustomerEventFactory(logger);
                 List<CustomerEvent> customerEvents =
                         customerEventFactory.createCustomerEventSampleData(0, numberOfCustomerEventSamples, true);
-                SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME,
+                sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME,
                         customerEvents);
             }
 
-            statement.close();
-            connection.close();
-        } catch (SQLException e){
-            logger.info("Sql exception in setup tables main method");
-            logger.info(e.getMessage());
-            e.printStackTrace();
         } catch (ParseException e){
             logger.info("Parser exception in setup tables main method");
             logger.info(e.getMessage());
