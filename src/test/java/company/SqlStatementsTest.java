@@ -27,7 +27,7 @@ public class SqlStatementsTest {
     Connection testDatabaseConnection = TestDatabaseConnection.getPostgresConnection();
 
     String employeeTable = EmployeeTable.TABLE_NAME;
-    EmployeeFactory employeeFactory = new EmployeeFactory();
+    EmployeeFactory employeeFactory = new EmployeeFactory(null);
     int numberOfEmployees = 1000;
     int numberOfEmployeesJson = 10;
     List<Employee> employees = employeeFactory.createEmployeeSampleData(numberOfEmployeesJson, numberOfEmployees, true);
@@ -35,7 +35,7 @@ public class SqlStatementsTest {
     List<Employee> employeesJson = readEmployeesFromJsonFile(pathToEmployeeJson);
 
     String customerEventTable = CustomerEventTable.TABLE_NAME;
-    CustomerEventFactory customerEventFactory = new CustomerEventFactory();
+    CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
     int numberOfEvents = 1000;
     int numberOfEventsJson = 10;
     List<CustomerEvent> customerEvents =
@@ -83,7 +83,7 @@ public class SqlStatementsTest {
         int createTableResult = sqlStatements.createTable(employeeTable);
         assertEquals(0, createTableResult);
 
-        List<Employee> employeesJsonWithId = EmployeeFactory.addIdToEmployees(employeesJson, 0);
+        List<Employee> employeesJsonWithId = employeeFactory.addIdToEmployees(employeesJson, 0);
         int insertJsonDataResult = sqlStatements.insertEmployeesIntoTable(employeeTable, employeesJsonWithId);
         assertEquals(numberOfEmployeesJson, insertJsonDataResult);
 
@@ -117,7 +117,7 @@ public class SqlStatementsTest {
         int createTableResult = sqlStatements.createTable(customerEventTable);
         assertEquals(0, createTableResult);
 
-        List<CustomerEvent> customerEventsJsonWithId = CustomerEventFactory.addIdToCustomerEvents(customerEventsJson, 0);
+        List<CustomerEvent> customerEventsJsonWithId = customerEventFactory.addIdToCustomerEvents(customerEventsJson, 0);
         int insertJsonDataResult = sqlStatements.insertCustomerEventsIntoTable(customerEventTable,
                 customerEventsJsonWithId);
         assertEquals(numberOfEventsJson, insertJsonDataResult);

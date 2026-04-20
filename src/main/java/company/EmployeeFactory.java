@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 /**
@@ -21,8 +22,9 @@ public class EmployeeFactory {
     int[] salary;
     int[] age;
     int[] bonus;
+    Logger logger;
 
-    public EmployeeFactory(){
+    public EmployeeFactory(Logger logger){
         this.firstNames = InputOutputUtils.getFirstNamesFromFile();
         this.lastNames = InputOutputUtils.getLastNamesFromFile();
         this.departments = new String[]{"Finance", "Marketing", "Sales", "Accounting", "IT"};
@@ -30,9 +32,16 @@ public class EmployeeFactory {
         this.salary = IntStream.range(50000, 100000).toArray();
         this.age = IntStream.range(20, 60).toArray();
         this.bonus = new int[]{1000, 2000, 5000, 10000, 15000};
+        if(logger == null){
+            this.logger = Logger.getLogger("EmployeeFactory Log");
+        } else{
+            this.logger = logger;
+        }
+
     }
 
     public List<Employee> createEmployeeSampleData(int employeeId, int numberOfEmployees, boolean databaseEntry){
+        logger.info("Create employee sample data");
         List<Employee> employees = new ArrayList<>();
         Random random = new Random();
         for(int i=0;i<numberOfEmployees;i++){
@@ -55,7 +64,8 @@ public class EmployeeFactory {
         return employees;
     }
 
-    public static List<Employee> addIdToEmployees(List<Employee> employees, int maxId){
+    public List<Employee> addIdToEmployees(List<Employee> employees, int maxId){
+        logger.info("Add id to employees");
         List<Employee> employeesWithId = new ArrayList<>();
         for (Employee employee : employees){
             maxId += 1;
@@ -64,5 +74,28 @@ public class EmployeeFactory {
         }
 
         return employeesWithId;
+    }
+
+
+    public List<Employee> createEmployeeListFromSqlResult(ResultSet result) {
+        logger.info("Create employee list from sql result set");
+        List<Employee> employees = new ArrayList<>();
+        try {
+            while(result.next()){
+                employees.add(
+                        new Employee(result.getInt(EmployeeTable.ID_COLUMN),
+                                result.getString(EmployeeTable.NAME_COLUMN),
+                                result.getString(EmployeeTable.DEPARTMENT_COLUMN),
+                                result.getString(EmployeeTable.STATE_COLUMN),
+                                result.getInt(EmployeeTable.SALARY_COLUMN),
+                                result.getInt(EmployeeTable.AGE_COLUMN),
+                                result.getInt(EmployeeTable.BONUS_COLUMN)));
+            }
+        } catch (SQLException e) {
+            logger.info("Create list from sql result set failed");
+            e.printStackTrace();
+        }
+
+        return employees;
     }
 }

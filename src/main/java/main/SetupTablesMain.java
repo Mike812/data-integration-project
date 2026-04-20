@@ -84,7 +84,7 @@ public class SetupTablesMain {
 
             if(numberOfEmployeeSamples>0){
                 logger.info("Create random sample data and insert values in employee");
-                EmployeeFactory empFactory = new EmployeeFactory();
+                EmployeeFactory empFactory = new EmployeeFactory(logger);
                 List<Employee> randomEmployees =
                         empFactory.createEmployeeSampleData(0, numberOfEmployeeSamples, true);
                 sqlStatements.insertEmployeesIntoTable(EmployeeTable.TABLE_NAME, randomEmployees);
@@ -92,7 +92,7 @@ public class SetupTablesMain {
 
             if(numberOfCustomerEventSamples>0){
                 logger.info("Create random sample data and insert values in customer event");
-                CustomerEventFactory customerEventFactory = new CustomerEventFactory();
+                CustomerEventFactory customerEventFactory = new CustomerEventFactory(logger);
                 List<CustomerEvent> customerEvents =
                         customerEventFactory.createCustomerEventSampleData(0, numberOfCustomerEventSamples, true);
                 sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME,

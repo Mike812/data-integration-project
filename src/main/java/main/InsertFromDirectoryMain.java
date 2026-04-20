@@ -64,13 +64,15 @@ public class InsertFromDirectoryMain {
             }
 
             SqlStatements sqlStatements = new SqlStatements(databaseConnection, logger);
+            CustomerEventFactory customerEventFactory = new CustomerEventFactory(logger);
+            EmployeeFactory employeeFactory = new EmployeeFactory(logger);
 
             int sublistThreshold = 10000;
             if (table.equals(CustomerEventTable.TABLE_NAME)){
                 logger.info("Read customer events from directory");
                 List<CustomerEvent> allCustomerEvents = JsonUtils.readCustomerEventsFromDirectory(inputDir);
                 int maxId = sqlStatements.getMaxIdFromTable(table, CustomerEventTable.ID_COLUMN);
-                List<CustomerEvent> allCustomerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(allCustomerEvents, maxId);
+                List<CustomerEvent> allCustomerEventsWithId = customerEventFactory.addIdToCustomerEvents(allCustomerEvents, maxId);
                 if (allCustomerEvents.size() > sublistThreshold){
                     logger.info("Insert customer events in sublists");
                     insertCustomerEventSublistsIntoTable(sqlStatements, allCustomerEventsWithId, sublistThreshold);
@@ -83,7 +85,7 @@ public class InsertFromDirectoryMain {
                 logger.info("Read employees from directory");
                 List<Employee> allEmployees = JsonUtils.readEmployeesFromDirectory(inputDir);
                 int maxId = sqlStatements.getMaxIdFromTable(table, EmployeeTable.ID_COLUMN);
-                List<Employee> allEmployeesWithId = EmployeeFactory.addIdToEmployees(allEmployees, maxId);
+                List<Employee> allEmployeesWithId = employeeFactory.addIdToEmployees(allEmployees, maxId);
                 if (allEmployees.size() > sublistThreshold){
                     logger.info("Insert employees in sublists");
                     insertEmployeeSublistsIntoTable(sqlStatements, allEmployeesWithId, sublistThreshold);

@@ -9,6 +9,8 @@ import static utils.JsonUtils.readEmployeesFromJsonFile;
 
 public class EmployeeTableTest {
 
+    EmployeeFactory employeeFactory = new EmployeeFactory(null);
+
     @Test
     public void testGetCreateTableString(){
         String expectedString = "CREATE TABLE IF NOT EXISTS employee (employee_id int PRIMARY KEY, " +
@@ -21,7 +23,7 @@ public class EmployeeTableTest {
     public void testInsertIntoTableString() {
         String pathToEmployeeJson = "json/employees_12-04-2026_15-19-01.json";
         List<Employee> employeesJson = readEmployeesFromJsonFile(pathToEmployeeJson);
-        List<Employee> employeesJsonWithId = EmployeeFactory.addIdToEmployees(employeesJson, 0);
+        List<Employee> employeesJsonWithId = employeeFactory.addIdToEmployees(employeesJson, 0);
         String expectedString = "INSERT INTO employee VALUES  (1, 'Dylan Curtis', 'Sales', 'NV', 63840, 46, 10000), " +
                 "(2, 'Michelle Rogers', 'Marketing', 'NV', 66165, 55, 5000), " +
                 "(3, 'Catherine Bernard', 'Accounting', 'NV', 73457, 33, 1000), " +

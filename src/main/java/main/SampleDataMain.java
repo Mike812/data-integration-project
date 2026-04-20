@@ -57,7 +57,7 @@ public class SampleDataMain {
             switch (inputTable){
                 case EmployeeTable.TABLE_NAME:
                     logger.info("Create random employee sample data");
-                    EmployeeFactory empFactory = new EmployeeFactory();
+                    EmployeeFactory empFactory = new EmployeeFactory(logger);
                     List<Employee> employees = empFactory.createEmployeeSampleData(0, numberOfSamples, false);
                     logger.info("Write employee sample data to json file");
                     String pathToEmployeeJson = outputPath + "/employees_" + currentTimestamp + ".json";
@@ -65,7 +65,7 @@ public class SampleDataMain {
                     break;
                 case CustomerEventTable.TABLE_NAME:
                     logger.info("Create random customer event sample data");
-                    CustomerEventFactory customerEventFactory = new CustomerEventFactory();
+                    CustomerEventFactory customerEventFactory = new CustomerEventFactory(logger);
                     List<CustomerEvent> customerEvents =
                             customerEventFactory.createCustomerEventSampleData(0, numberOfSamples, false);
                     logger.info("Write customer event sample data to json file");

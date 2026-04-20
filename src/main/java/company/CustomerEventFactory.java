@@ -1,8 +1,12 @@
 package company;
 
+import org.slf4j.LoggerFactory;
 import utils.InputOutputUtils;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 /**
@@ -10,17 +14,25 @@ import java.util.stream.IntStream;
  */
 public class CustomerEventFactory {
 
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(CustomerEventFactory.class);
     List<String> customerNames;
     String[] productNames;
     int[] salesAmounts;
+    Logger logger;
 
-    public CustomerEventFactory(){
+    public CustomerEventFactory(Logger logger){
         this.customerNames = InputOutputUtils.getCompanyNamesFromFile();
         this.productNames = new String[]{"Software as a Service", "Platform as a Service"};
         this.salesAmounts = IntStream.range(1, 10).toArray();
+        if(logger == null){
+            this.logger = Logger.getLogger("CustomerEventFactory Log");
+        } else{
+            this.logger = logger;
+        }
     }
 
     public List<CustomerEvent> createCustomerEventSampleData(int customerEventId, int numberOfEvents, boolean databaseEntry){
+        logger.info("Create customer event sample data");
         List<CustomerEvent> customerEvents = new ArrayList<>();
         Random random = new Random();
         for(int i=0;i<numberOfEvents;i++){
@@ -41,7 +53,8 @@ public class CustomerEventFactory {
         return customerEvents;
     }
 
-    public static List<CustomerEvent> addIdToCustomerEvents(List<CustomerEvent> customerEvents, int maxId){
+    public List<CustomerEvent> addIdToCustomerEvents(List<CustomerEvent> customerEvents, int maxId){
+        logger.info("Add id to customer events");
         List<CustomerEvent> customerEventsWithId = new ArrayList<>();
         for (CustomerEvent customerEvent : customerEvents){
             maxId += 1;
@@ -53,7 +66,8 @@ public class CustomerEventFactory {
     }
 
     // Group kafka consumer records by customer and product name and sum up the sales amounts
-    public static Map<String, Integer> getMapWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents){
+    public Map<String, Integer> getMapWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents){
+        logger.info("Create map with summed up sales amounts");
         Map<String, Integer> customerSalesMap = new HashMap<>();
         for(CustomerEvent customerEvent : customerEvents){
             String key = customerEvent.getCustomerName() + "_" + customerEvent.getProductName();
@@ -68,9 +82,9 @@ public class CustomerEventFactory {
     }
 
     // Reproduce all customer fields after aggregating sales amounts
-    public static List<CustomerEvent> getListWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents, String currentTimestamp){
+    public List<CustomerEvent> getListWithSummedUpSalesAmounts(List<CustomerEvent> customerEvents, String currentTimestamp){
+        logger.info("Reproduce customer events after aggregating sales amounts");
         Map<String, Integer> summedUpSalesAmounts = getMapWithSummedUpSalesAmounts(customerEvents);
-
         List<CustomerEvent> customerEventsAggregated = new ArrayList<>();
         for(Map.Entry<String, Integer> mapEntry : summedUpSalesAmounts.entrySet()){
             String[] customerAndProductNames = mapEntry.getKey().split("_");
@@ -81,5 +95,26 @@ public class CustomerEventFactory {
         }
 
         return customerEventsAggregated;
+    }
+
+
+    public List<CustomerEvent> createCustomerEventListFromSqlResult(ResultSet result) {
+        logger.info("Create customer event list from sql result set");
+        List<CustomerEvent> customerEvents = new ArrayList<>();
+        try {
+            while(result.next()){
+                customerEvents.add(
+                        new CustomerEvent(result.getInt(CustomerEventTable.ID_COLUMN),
+                                result.getString(CustomerEventTable.CUSTOMER_NAME_COLUMN),
+                                result.getString(CustomerEventTable.PRODUCT_NAME_COLUMN),
+                                result.getInt(CustomerEventTable.SALES_AMOUNT_COLUMN),
+                                result.getString(CustomerEventTable.TIMESTAMP_COLUMN)));
+            }
+        } catch (SQLException e) {
+            logger.info("Create list from sql result set failed");
+            e.printStackTrace();
+        }
+
+        return customerEvents;
     }
 }

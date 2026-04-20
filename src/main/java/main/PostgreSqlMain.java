@@ -21,18 +21,20 @@ public class PostgreSqlMain {
 
             Connection databaseConnection = CompanyDatabaseConnection.getPostgresConnection();
             SqlStatements sqlStatements = new SqlStatements(databaseConnection, null);
+            CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
+            EmployeeFactory employeeFactory = new EmployeeFactory(null);
 
             switch (runMode){
                 case "select":
                     ResultSet selectAllResult = sqlStatements.selectAllFromTable(inputTable);
                     if (inputTable.equals(EmployeeTable.TABLE_NAME)){
-                        List<Employee> employees = sqlStatements.createEmployeeListFromSqlResult(selectAllResult);
+                        List<Employee> employees = employeeFactory.createEmployeeListFromSqlResult(selectAllResult);
                         for(Employee employee : employees){
                             System.out.println(employee.toString());
                         }
                         selectAllResult.close();
                     } else {
-                        List<CustomerEvent> customerEvents = sqlStatements.createCustomerEventListFromSqlResult(selectAllResult);
+                        List<CustomerEvent> customerEvents = customerEventFactory.createCustomerEventListFromSqlResult(selectAllResult);
                         for(CustomerEvent customerEvent : customerEvents){
                             System.out.println(customerEvent.toString());
                         }
@@ -45,12 +47,10 @@ public class PostgreSqlMain {
                 case "insert":
                     int maxId = sqlStatements.getMaxIdFromTable(inputTable, EmployeeTable.ID_COLUMN);
                     if(maxId != -1 && inputTable.equals(EmployeeTable.TABLE_NAME)){
-                        EmployeeFactory empFactory = new EmployeeFactory();
                         List<Employee> randomEmployees =
-                                empFactory.createEmployeeSampleData(maxId, numberOfSamplesToCreate, true);
+                                employeeFactory.createEmployeeSampleData(maxId, numberOfSamplesToCreate, true);
                         sqlStatements.insertEmployeesIntoTable(inputTable, randomEmployees);
                     } else if(maxId != -1 && inputTable.equals(CustomerEventTable.TABLE_NAME)){
-                        CustomerEventFactory customerEventFactory = new CustomerEventFactory();
                         List<CustomerEvent> randomCustomerEvens =
                                 customerEventFactory.createCustomerEventSampleData(maxId, numberOfSamplesToCreate, true);
                         sqlStatements.insertCustomerEventsIntoTable(inputTable, randomCustomerEvens);

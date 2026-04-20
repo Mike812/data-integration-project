@@ -17,6 +17,8 @@ public class SetupTablesMainTest {
 
     String database = TestDatabaseConnection.getDatabaseName();
     Connection databaseConnection = TestDatabaseConnection.getPostgresConnection();
+    EmployeeFactory employeeFactory = new EmployeeFactory(null);
+    CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
 
     @Test
     public void testSetupTablesMain() throws SQLException, InterruptedException {
@@ -31,11 +33,11 @@ public class SetupTablesMainTest {
         SetupTablesMain.main(args);
 
         ResultSet selectAllResult = sqlStatements.selectAllFromTable(EmployeeTable.TABLE_NAME);
-        List<Employee> employees = sqlStatements.createEmployeeListFromSqlResult(selectAllResult);
+        List<Employee> employees = employeeFactory.createEmployeeListFromSqlResult(selectAllResult);
         assertEquals(numberOfEmployees, employees.size());
 
         ResultSet selectAllResult2 = sqlStatements.selectAllFromTable(CustomerEventTable.TABLE_NAME);
-        List<CustomerEvent> customerEvents = sqlStatements.createCustomerEventListFromSqlResult(selectAllResult2);
+        List<CustomerEvent> customerEvents = customerEventFactory.createCustomerEventListFromSqlResult(selectAllResult2);
         assertEquals(numberOfCustomerEvents, customerEvents.size());
 
         selectAllResult.close();

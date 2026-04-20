@@ -20,6 +20,9 @@ public class InsertFromDirectoryMainTest {
 
     String database = TestDatabaseConnection.getDatabaseName();
     Connection databaseConnection = TestDatabaseConnection.getPostgresConnection();
+    EmployeeFactory employeeFactory = new EmployeeFactory(null);
+    CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
+
     int samplesFirstRun = 10000;
     int samplesSecondRun = 5000;
     String logDir = "C:/data-integration-project/logs/";
@@ -60,7 +63,7 @@ public class InsertFromDirectoryMainTest {
         InsertFromDirectoryMain.main(args);
 
         ResultSet selectAllResult = sqlStatements.selectAllFromTable(EmployeeTable.TABLE_NAME);
-        List<Employee> employees = sqlStatements.createEmployeeListFromSqlResult(selectAllResult);
+        List<Employee> employees = employeeFactory.createEmployeeListFromSqlResult(selectAllResult);
 
         int expected = samplesFirstRun + samplesSecondRun;
         assertEquals(expected, employees.size());
@@ -95,6 +98,7 @@ public class InsertFromDirectoryMainTest {
     @Test
     public void testDInsertFromDirectoryMainCustomerEvent() throws SQLException {
         SqlStatements sqlStatements = new SqlStatements(databaseConnection, null);
+        CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
 
         sqlStatements.truncateTable(CustomerEventTable.TABLE_NAME);
 
@@ -103,7 +107,7 @@ public class InsertFromDirectoryMainTest {
         InsertFromDirectoryMain.main(args);
 
         ResultSet selectAllResult = sqlStatements.selectAllFromTable(CustomerEventTable.TABLE_NAME);
-        List<CustomerEvent> customerEvents = sqlStatements.createCustomerEventListFromSqlResult(selectAllResult);
+        List<CustomerEvent> customerEvents = customerEventFactory.createCustomerEventListFromSqlResult(selectAllResult);
 
         int expected = samplesFirstRun + samplesSecondRun;
         assertEquals(expected, customerEvents.size());

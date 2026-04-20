@@ -9,6 +9,8 @@ import static utils.JsonUtils.readCustomerEventsFromJsonFile;
 
 public class CustomerEventTableTest {
 
+    CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
+
     @Test
     public void testGetCreateTableString(){
         String expectedString = "CREATE TABLE IF NOT EXISTS customer_event (id int PRIMARY KEY, " +
@@ -21,7 +23,7 @@ public class CustomerEventTableTest {
     public void testInsertIntoTableString() {
         String pathToJson = "json/customer_events_12-04-2026_17-16-03.json";
         List<CustomerEvent> customerEvents = readCustomerEventsFromJsonFile(pathToJson);
-        List<CustomerEvent> customerEventsJsonWithId = CustomerEventFactory.addIdToCustomerEvents(customerEvents, 0);
+        List<CustomerEvent> customerEventsJsonWithId = customerEventFactory.addIdToCustomerEvents(customerEvents, 0);
         String expectedString = "INSERT INTO customer_event VALUES  (1, 'Seetrue Technologies', 'Platform as a Service', 4, '2025-04-12 17:16:03'), " +
                 "(2, 'Cloudsmartz', 'Platform as a Service', 2, '2025-04-12 18:16:03'), " +
                 "(3, 'Skelia', 'Software as a Service', 9, '2025-04-12 19:16:03'), " +

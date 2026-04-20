@@ -12,10 +12,11 @@ public class CustomerEventFactoryTest {
 
     String pathToJson = "json/customer_events_19-04-2026_13-16-03.json";
     List<CustomerEvent> customerEvents = JsonUtils.readCustomerEventsFromJsonFile(pathToJson);
+    CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
 
     @Test
     public void testGetMapWithSummedUpSalesAmounts(){
-        Map<String, Integer> salesAmountMap = CustomerEventFactory.getMapWithSummedUpSalesAmounts(customerEvents);
+        Map<String, Integer> salesAmountMap = customerEventFactory.getMapWithSummedUpSalesAmounts(customerEvents);
         int salesAmountSeetrue = salesAmountMap.get("Seetrue Technologies_Platform as a Service");
         assertEquals(8, salesAmountSeetrue);
         // assertThrows(NullPointerException.class, () -> salesAmountMap.get("Seetrue Technologies_Software as a Service"));
@@ -33,7 +34,7 @@ public class CustomerEventFactoryTest {
 
     @Test
     public void testGetListWithSummedUpSalesAmounts(){
-        List<CustomerEvent> customerEventsAgg = CustomerEventFactory.getListWithSummedUpSalesAmounts(customerEvents,"19-04-2026_13-16-03");
+        List<CustomerEvent> customerEventsAgg = customerEventFactory.getListWithSummedUpSalesAmounts(customerEvents,"19-04-2026_13-16-03");
         assertEquals(6, customerEventsAgg.size());
         int summedUpSalesAmount = 0;
         for(CustomerEvent customerEvent : customerEventsAgg){

@@ -72,7 +72,7 @@ public class KafkaProducerMain {
                     customerEvents = JsonUtils.readCustomerEventsFromDirectory(inputDir);
                     break;
                 case "factory":
-                    CustomerEventFactory customerEventFactory = new CustomerEventFactory();
+                    CustomerEventFactory customerEventFactory = new CustomerEventFactory(logger);
                     customerEvents =
                             customerEventFactory.createCustomerEventSampleData(0, numberOfEvents, false);
                     break;

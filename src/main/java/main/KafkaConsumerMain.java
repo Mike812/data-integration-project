@@ -1,9 +1,6 @@
 package main;
 
-import company.CustomerEvent;
-import company.CustomerEventFactory;
-import company.CustomerEventTable;
-import company.SqlStatements;
+import company.*;
 import org.apache.commons.cli.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -71,7 +68,8 @@ public class KafkaConsumerMain {
             consumer.subscribe(Collections.singletonList(kafkaTopic));
 
             Connection companyDatabaseConnection = CompanyDatabaseConnection.getPostgresConnection();
-            SqlStatements sqlStatements = new SqlStatements(companyDatabaseConnection, null);
+            SqlStatements sqlStatements = new SqlStatements(companyDatabaseConnection, logger);
+            CustomerEventFactory customerEventFactory = new CustomerEventFactory(logger);
 
             List<CustomerEvent> customerEvents = new ArrayList<>();
             int databaseThreshold = 20000;
@@ -89,9 +87,9 @@ public class KafkaConsumerMain {
 
                 if(customerEvents.size() >= databaseThreshold){
                     logger.info("Process collected customer event list with size: " + customerEvents.size());
-                    List<CustomerEvent> customerEventsAggregated = CustomerEventFactory.getListWithSummedUpSalesAmounts(customerEvents, currentTimestamp);
+                    List<CustomerEvent> customerEventsAggregated = customerEventFactory.getListWithSummedUpSalesAmounts(customerEvents, currentTimestamp);
                     int maxId = sqlStatements.getMaxIdFromTable(CustomerEventTable.TABLE_NAME, CustomerEventTable.ID_COLUMN);
-                    List<CustomerEvent> customerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(customerEventsAggregated, maxId);
+                    List<CustomerEvent> customerEventsWithId = customerEventFactory.addIdToCustomerEvents(customerEventsAggregated, maxId);
                     int result = sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME, customerEventsWithId);
                     if(result == 0){
                         logger.info("Successfully inserted aggregated customer events");

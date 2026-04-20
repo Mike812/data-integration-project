@@ -55,7 +55,7 @@ public class JsonUtilsTest {
         Path path = Paths.get(pathToEmployeeJson);
         assertFalse(Files.exists(path));
 
-        EmployeeFactory employeeFactory = new EmployeeFactory();
+        EmployeeFactory employeeFactory = new EmployeeFactory(null);
         List<Employee> employees = employeeFactory.createEmployeeSampleData(0, 10, false);
         JsonUtils.writeEmployeesToJsonFile(employees, pathToEmployeeJson);
         assertTrue(Files.exists(path));
@@ -74,7 +74,7 @@ public class JsonUtilsTest {
         Path path = Paths.get(pathToCustomerJson);
         assertFalse(Files.exists(path));
 
-        CustomerEventFactory customerEventFactory = new CustomerEventFactory();
+        CustomerEventFactory customerEventFactory = new CustomerEventFactory(null);
         List<CustomerEvent> customerEvents =
                 customerEventFactory.createCustomerEventSampleData(0, 10, false);
         JsonUtils.writeCustomerEventsToJsonFile(customerEvents, pathToCustomerJson);

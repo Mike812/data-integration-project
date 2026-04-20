@@ -1,10 +1,8 @@
 package company;
 
-import utils.PostgreSqlUtils;
 import utils.SqlStatementUtils;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -111,7 +109,6 @@ public class SqlStatements {
             String selectAllFromTableString = SqlStatementUtils.getSelectAllFromTableCmd(inputTable);
             Statement statement = connection.createStatement();
             resultSet = statement.executeQuery(selectAllFromTableString);
-            statement.close();
         } catch (SQLException e){
             logger.info("Get max id from sql result failed");
             e.printStackTrace();
@@ -184,45 +181,5 @@ public class SqlStatements {
         }
 
         return result;
-    }
-
-    public List<Employee> createEmployeeListFromSqlResult(ResultSet result) {
-        List<Employee> employees = new ArrayList<>();
-        try {
-            while(result.next()){
-                employees.add(
-                        new Employee(result.getInt(EmployeeTable.ID_COLUMN),
-                                result.getString(EmployeeTable.NAME_COLUMN),
-                                result.getString(EmployeeTable.DEPARTMENT_COLUMN),
-                                result.getString(EmployeeTable.STATE_COLUMN),
-                                result.getInt(EmployeeTable.SALARY_COLUMN),
-                                result.getInt(EmployeeTable.AGE_COLUMN),
-                                result.getInt(EmployeeTable.BONUS_COLUMN)));
-            }
-        } catch (SQLException e) {
-            logger.info("Create list from sql result set failed");
-            e.printStackTrace();
-        }
-
-        return employees;
-    }
-
-    public List<CustomerEvent> createCustomerEventListFromSqlResult(ResultSet result) {
-        List<CustomerEvent> customerEvents = new ArrayList<>();
-        try {
-            while(result.next()){
-                customerEvents.add(
-                        new CustomerEvent(result.getInt(CustomerEventTable.ID_COLUMN),
-                                result.getString(CustomerEventTable.CUSTOMER_NAME_COLUMN),
-                                result.getString(CustomerEventTable.PRODUCT_NAME_COLUMN),
-                                result.getInt(CustomerEventTable.SALES_AMOUNT_COLUMN),
-                                result.getString(CustomerEventTable.TIMESTAMP_COLUMN)));
-            }
-        } catch (SQLException e) {
-            logger.info("Create list from sql result set failed");
-            e.printStackTrace();
-        }
-
-        return customerEvents;
     }
 }
