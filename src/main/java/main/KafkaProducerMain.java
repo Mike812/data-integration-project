@@ -47,9 +47,7 @@ public class KafkaProducerMain {
                 runMode = "directory";
             }
 
-            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils(database);
-            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
-            Statement statement = postgresSqlConnection.getSqlStatement(connection);
+            SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, null);
 
             Properties kafkaProperties = new Properties();
             InputStream inputStream = KafkaProducerMain.class.getClassLoader().getResourceAsStream("properties/kafka.properties");
@@ -67,8 +65,8 @@ public class KafkaProducerMain {
             List<CustomerEvent> customerEvents = new ArrayList<>();
             switch (runMode){
                 case "database":
-                    ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, CustomerEventTable.TABLE_NAME);
-                    customerEvents = SqlStatements.createCustomerEventListFromSqlResult(selectAllResult);
+                    ResultSet selectAllResult = sqlStatements.selectAllFromTable(CustomerEventTable.TABLE_NAME);
+                    customerEvents = sqlStatements.createCustomerEventListFromSqlResult(selectAllResult);
                     break;
                 case "directory":
                     customerEvents = JsonUtils.readCustomerEventsFromDirectory(inputDir);

@@ -1,8 +1,6 @@
 package main;
 
-import company.CustomerEvent;
-import company.CustomerEventFactory;
-import company.SqlStatements;
+import company.*;
 import org.apache.commons.cli.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -11,13 +9,10 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import utils.CustomerEventDeserializer;
 import utils.InputOutputUtils;
-import utils.PostgreSqlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,12 +63,11 @@ public class KafkaConsumerMain {
             KafkaConsumer<String, CustomerEvent> consumer = new KafkaConsumer<>(kafkaConsumerProperties);
             consumer.subscribe(Collections.singletonList(kafkaTopic));
 
-            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils("company");
-            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
-            Statement statement = postgresSqlConnection.getSqlStatement(connection);
+            String database = "company";
+            SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, logger);
 
             List<CustomerEvent> customerEvents = new ArrayList<>();
-            int numberOfEvents = 20000;
+            int databaseThreshold = 20000;
 
             while (true){
                 ConsumerRecords<String, CustomerEvent> consumerRecords = consumer.poll(Duration.ofMillis(100));
@@ -86,10 +80,12 @@ public class KafkaConsumerMain {
                       //      " Offset: " + record.offset());
                 }
 
-                if(customerEvents.size() >= numberOfEvents){
+                if(customerEvents.size() >= databaseThreshold){
                     logger.info("Process collected customer event list with size: " + customerEvents.size());
                     List<CustomerEvent> customerEventsAggregated = CustomerEventFactory.getListWithSummedUpSalesAmounts(customerEvents, currentTimestamp);
-                    int result = SqlStatements.insertCustomerEventsIntoTable(connection, statement, customerEventsAggregated);
+                    int maxId = sqlStatements.getMaxIdFromTable(CustomerEventTable.TABLE_NAME, CustomerEventTable.ID_COLUMN);
+                    List<CustomerEvent> customerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(customerEventsAggregated, maxId);
+                    int result = sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME, customerEventsWithId);
                     if(result == 0){
                         logger.info("Successfully inserted aggregated customer events");
                     }

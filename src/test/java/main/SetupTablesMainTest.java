@@ -21,25 +21,22 @@ public class SetupTablesMainTest {
         int numberOfEmployees = 100;
         int numberOfCustomerEvents = 1000;
 
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
-        Statement statement = postgreSqlConnection.getSqlStatement(connection);
+        SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, null);
 
         String[] args = {"-d", database, "-l", logDir, "-e", String.valueOf(numberOfEmployees),
                 "-c", String.valueOf(numberOfCustomerEvents)};
         SetupTablesMain.main(args);
 
-        ResultSet selectAllResult = SqlStatements.selectAllFromTable(statement, EmployeeTable.TABLE_NAME);
-        List<Employee> employees = SqlStatements.createEmployeeListFromSqlResult(selectAllResult);
+        ResultSet selectAllResult = sqlStatements.selectAllFromTable(EmployeeTable.TABLE_NAME);
+        List<Employee> employees = sqlStatements.createEmployeeListFromSqlResult(selectAllResult);
         assertEquals(numberOfEmployees, employees.size());
 
-        ResultSet selectAllResult2 = SqlStatements.selectAllFromTable(statement, CustomerEventTable.TABLE_NAME);
-        List<CustomerEvent> customerEvents = SqlStatements.createCustomerEventListFromSqlResult(selectAllResult2);
+        ResultSet selectAllResult2 = sqlStatements.selectAllFromTable(CustomerEventTable.TABLE_NAME);
+        List<CustomerEvent> customerEvents = sqlStatements.createCustomerEventListFromSqlResult(selectAllResult2);
         assertEquals(numberOfCustomerEvents, customerEvents.size());
 
         selectAllResult.close();
         selectAllResult2.close();
-        statement.close();
-        connection.close();
+        sqlStatements.closeConnections();
     }
 }

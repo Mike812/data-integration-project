@@ -63,24 +63,22 @@ public class SetupTablesMain {
             fh = new FileHandler(logFile, true);
             logger.addHandler(fh);
 
-            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils(database);
-            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
-            Statement statement = postgresSqlConnection.getSqlStatement(connection);
+            SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, logger);
 
             logger.info("Create tables");
-            SqlStatements.createTable(connection, EmployeeTable.TABLE_NAME);
-            SqlStatements.createTable(connection, CustomerEventTable.TABLE_NAME);
+            sqlStatements.createTable(EmployeeTable.TABLE_NAME);
+            sqlStatements.createTable(CustomerEventTable.TABLE_NAME);
 
             logger.info("Truncate tables");
-            SqlStatements.truncateTable(connection, EmployeeTable.TABLE_NAME);
-            SqlStatements.truncateTable(connection, CustomerEventTable.TABLE_NAME);
+            sqlStatements.truncateTable(EmployeeTable.TABLE_NAME);
+            sqlStatements.truncateTable(CustomerEventTable.TABLE_NAME);
 
             if(numberOfEmployeeSamples>0){
                 logger.info("Create random sample data and insert values in employee");
                 EmployeeFactory empFactory = new EmployeeFactory();
                 List<Employee> randomEmployees =
                         empFactory.createEmployeeSampleData(0, numberOfEmployeeSamples, true);
-                SqlStatements.insertEmployeesIntoTable(connection, EmployeeTable.TABLE_NAME, randomEmployees);
+                sqlStatements.insertEmployeesIntoTable(EmployeeTable.TABLE_NAME, randomEmployees);
             }
 
             if(numberOfCustomerEventSamples>0){
@@ -88,12 +86,10 @@ public class SetupTablesMain {
                 CustomerEventFactory customerEventFactory = new CustomerEventFactory();
                 List<CustomerEvent> customerEvents =
                         customerEventFactory.createCustomerEventSampleData(0, numberOfCustomerEventSamples, true);
-                SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME,
+                sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME,
                         customerEvents);
             }
-
-            statement.close();
-            connection.close();
+            sqlStatements.closeConnections();
         } catch (SQLException e){
             logger.info("Sql exception in setup tables main method");
             logger.info(e.getMessage());

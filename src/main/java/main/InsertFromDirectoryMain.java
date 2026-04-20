@@ -56,44 +56,40 @@ public class InsertFromDirectoryMain {
             fh = new FileHandler(logFile, true);
             logger.addHandler(fh);
 
-            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils(database);
-            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
-            Statement statement = postgresSqlConnection.getSqlStatement(connection);
+            SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, logger);
 
             int limit = 10000;
             if (table.equals(CustomerEventTable.TABLE_NAME)){
                 logger.info("Read customer events from directory");
                 List<CustomerEvent> allCustomerEvents = JsonUtils.readCustomerEventsFromDirectory(inputDir);
-                int maxId = SqlStatements.getMaxIdFromTable(statement, table, CustomerEventTable.ID_COLUMN);
+                int maxId = sqlStatements.getMaxIdFromTable(table, CustomerEventTable.ID_COLUMN);
                 List<CustomerEvent> allCustomerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(allCustomerEvents, maxId);
                 if (allCustomerEvents.size() > limit){
                     logger.info("Insert customer events in sublists");
-                    insertCustomerEventSublistsIntoTable(connection, allCustomerEventsWithId, limit);
+                    insertCustomerEventSublistsIntoTable(sqlStatements, allCustomerEventsWithId, limit);
                 } else {
                     logger.info("Insert customer events at once");
-                    SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME, allCustomerEventsWithId);
+                    sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME, allCustomerEventsWithId);
                 }
             }
             else if (table.equals(EmployeeTable.TABLE_NAME)){
                 logger.info("Read employees from directory");
                 List<Employee> allEmployees = JsonUtils.readEmployeesFromDirectory(inputDir);
-                int maxId = SqlStatements.getMaxIdFromTable(statement, table, EmployeeTable.ID_COLUMN);
+                int maxId = sqlStatements.getMaxIdFromTable(table, EmployeeTable.ID_COLUMN);
                 List<Employee> allEmployeesWithId = EmployeeFactory.addIdToEmployees(allEmployees, maxId);
                 if (allEmployees.size() > limit){
                     logger.info("Insert employees in sublists");
-                    insertEmployeeSublistsIntoTable(connection, allEmployeesWithId, limit);
+                    insertEmployeeSublistsIntoTable(sqlStatements, allEmployeesWithId, limit);
                 } else {
                     logger.info("Insert employees at once");
-                    SqlStatements.insertEmployeesIntoTable(connection, EmployeeTable.TABLE_NAME, allEmployeesWithId);
+                    sqlStatements.insertEmployeesIntoTable(EmployeeTable.TABLE_NAME, allEmployeesWithId);
                 }
             }
             else {
                 System.out.println("Table name " + table + " is not supported. Use " + EmployeeTable.TABLE_NAME +
                         " or " + CustomerEventTable.TABLE_NAME + " instead");
             }
-
-            statement.close();
-            connection.close();
+            sqlStatements.closeConnections();
         } catch (SQLException e){
             logger.info("Sql problem in main method");
             logger.info(e.getMessage());
@@ -108,7 +104,7 @@ public class InsertFromDirectoryMain {
         }
     }
 
-    public static void insertCustomerEventSublistsIntoTable(Connection connection, List<CustomerEvent> allCustomerEvents,
+    public static void insertCustomerEventSublistsIntoTable(SqlStatements sqlStatements, List<CustomerEvent> allCustomerEvents,
                                                             int limit){
         int size = allCustomerEvents.size();
         int right = limit;
@@ -118,14 +114,14 @@ public class InsertFromDirectoryMain {
                     right = size;
                 }
                 List<CustomerEvent> customerEvents = allCustomerEvents.subList(i, right);
-                SqlStatements.insertCustomerEventsIntoTable(connection, CustomerEventTable.TABLE_NAME, customerEvents);
+                sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME, customerEvents);
                 System.out.println("Successfully inserted values into table " + CustomerEventTable.TABLE_NAME);
                 right += limit;
             }
         }
     }
 
-    public static void insertEmployeeSublistsIntoTable(Connection connection, List<Employee> allEmployees, int limit){
+    public static void insertEmployeeSublistsIntoTable(SqlStatements sqlStatements, List<Employee> allEmployees, int limit){
         int size = allEmployees.size();
         int right = limit;
         if (allEmployees.size() > limit){
@@ -134,7 +130,7 @@ public class InsertFromDirectoryMain {
                     right = size;
                 }
                 List<Employee> employees = allEmployees.subList(i, right);
-                SqlStatements.insertEmployeesIntoTable(connection, EmployeeTable.TABLE_NAME, employees);
+                sqlStatements.insertEmployeesIntoTable(EmployeeTable.TABLE_NAME, employees);
                 System.out.println("Successfully inserted values into table " + EmployeeTable.TABLE_NAME);
                 right += limit;
             }
