@@ -45,12 +45,13 @@ public class PostgreSqlMain {
                     sqlStatements.truncateTable(inputTable);
                     break;
                 case "insert":
-                    int maxId = sqlStatements.getMaxIdFromTable(inputTable, EmployeeTable.ID_COLUMN);
-                    if(maxId != -1 && inputTable.equals(EmployeeTable.TABLE_NAME)){
+                    if(inputTable.equals(EmployeeTable.TABLE_NAME)){
+                        int maxId = sqlStatements.getMaxIdFromTable(inputTable, EmployeeTable.ID_COLUMN);
                         List<Employee> randomEmployees =
                                 employeeFactory.createEmployeeSampleData(maxId, numberOfSamplesToCreate, true);
                         sqlStatements.insertEmployeesIntoTable(inputTable, randomEmployees);
-                    } else if(maxId != -1 && inputTable.equals(CustomerEventTable.TABLE_NAME)){
+                    } else if(inputTable.equals(CustomerEventTable.TABLE_NAME)){
+                        int maxId = sqlStatements.getMaxIdFromTable(inputTable, CustomerEventTable.ID_COLUMN);
                         List<CustomerEvent> randomCustomerEvens =
                                 customerEventFactory.createCustomerEventSampleData(maxId, numberOfSamplesToCreate, true);
                         sqlStatements.insertCustomerEventsIntoTable(inputTable, randomCustomerEvens);

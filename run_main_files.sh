@@ -23,7 +23,7 @@ java -cp data-integration-project.jar main.SampleDataMain -t employee -l /home/l
 echo "Waiting for 10 seconds before proceeding with next java programs" && sleep 10
 java -cp data-integration-project.jar main.InsertFromDirectoryMain -d company -l /home/logs -t employee -i /home/sample_data/employee
 # java -cp data-integration-project.jar main.InsertFromDirectoryMain -d company -l /home/logs -t customer_event -i /home/sample_data/customer_event
-java -cp data-integration-project.jar main.KafkaProducerMain -i /home/sample_data/customer_event
+java -cp data-integration-project.jar main.KafkaProducerMain -i /home/sample_data/customer_event -l /home/logs
 java -cp data-integration-project.jar main.KafkaConsumerMain -l /home/logs &
 
 # spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.1.0 --class main.SparkStreamingMain --master local data-integration-project.jar

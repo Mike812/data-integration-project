@@ -32,6 +32,7 @@ public class KafkaProducerMain {
         options.addOption(inputDirOption);
 
         Option logDirOption = new Option("l", "log_dir", true, "directory for log files");
+        logDirOption.setRequired(true);
         options.addOption(logDirOption);
 
         Logger logger = Logger.getLogger("KafkaProducerMain Log");
@@ -53,12 +54,14 @@ public class KafkaProducerMain {
             fh = new FileHandler(logFile, true);
             logger.addHandler(fh);
 
+            logger.info("Load kafka properties");
             Properties kafkaProperties = new Properties();
             InputStream inputStream = KafkaProducerMain.class.getClassLoader().getResourceAsStream("properties/kafka.properties");
             kafkaProperties.load(inputStream);
             String bootstrapServer = kafkaProperties.getProperty("bootstrap.server");
             String kafkaTopic = kafkaProperties.getProperty("kafka.topic");
 
+            logger.info("Set kafka producer properties");
             Properties kafkaProducerProps = new Properties();
             kafkaProducerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
             kafkaProducerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -69,15 +72,18 @@ public class KafkaProducerMain {
             List<CustomerEvent> customerEvents = new ArrayList<>();
             switch (runMode){
                 case "directory":
+                    logger.info("Read customer events from directory");
                     customerEvents = JsonUtils.readCustomerEventsFromDirectory(inputDir);
                     break;
                 case "factory":
+                    logger.info("Create random customer event sample data");
                     CustomerEventFactory customerEventFactory = new CustomerEventFactory(logger);
                     customerEvents =
                             customerEventFactory.createCustomerEventSampleData(0, numberOfEvents, false);
                     break;
             }
 
+            logger.info("Send customer events to kafka topic: " + kafkaTopic);
             for(int i=0;i<customerEvents.size();i++){
                 String key = "key-"+i;
                 CustomerEvent value = customerEvents.get(i);
@@ -90,7 +96,7 @@ public class KafkaProducerMain {
             logger.info(e.getMessage());
         } catch (ParseException e) {
             logger.info(e.getMessage());
-            formatter.printHelp("Kafka Customer Events Main", options);
+            formatter.printHelp("Kafka Producer Main", options);
         }
 
     }
