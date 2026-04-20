@@ -2,8 +2,10 @@ package main;
 
 import company.*;
 import org.apache.commons.cli.*;
+import utils.CompanyDatabaseConnection;
 import utils.InputOutputUtils;
 import utils.PostgreSqlUtils;
+import utils.TestDatabaseConnection;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -63,7 +65,14 @@ public class SetupTablesMain {
             fh = new FileHandler(logFile, true);
             logger.addHandler(fh);
 
-            SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, logger);
+            Connection databaseConnection;
+            if(database.equals(CompanyDatabaseConnection.getDatabaseName())){
+                databaseConnection = CompanyDatabaseConnection.getPostgresConnection();
+            } else {
+                databaseConnection = TestDatabaseConnection.getPostgresConnection();
+            }
+
+            SqlStatements sqlStatements = new SqlStatements(databaseConnection, logger);
 
             logger.info("Create tables");
             sqlStatements.createTable(EmployeeTable.TABLE_NAME);
@@ -89,11 +98,7 @@ public class SetupTablesMain {
                 sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME,
                         customerEvents);
             }
-            sqlStatements.closeConnections();
-        } catch (SQLException e){
-            logger.info("Sql exception in setup tables main method");
-            logger.info(e.getMessage());
-            e.printStackTrace();
+
         } catch (ParseException e){
             logger.info("Parser exception in setup tables main method");
             logger.info(e.getMessage());

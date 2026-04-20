@@ -3,6 +3,7 @@ package main;
 import company.*;
 import org.junit.Test;
 import utils.PostgreSqlUtils;
+import utils.TestDatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,14 +15,16 @@ import static org.junit.Assert.assertEquals;
 
 public class SetupTablesMainTest {
 
+    String database = TestDatabaseConnection.getDatabaseName();
+    Connection databaseConnection = TestDatabaseConnection.getPostgresConnection();
+
     @Test
     public void testSetupTablesMain() throws SQLException, InterruptedException {
-        String database = "company";
         String logDir = "C:/data-integration-project/logs/";
         int numberOfEmployees = 100;
         int numberOfCustomerEvents = 1000;
 
-        SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, null);
+        SqlStatements sqlStatements = new SqlStatements(databaseConnection, null);
 
         String[] args = {"-d", database, "-l", logDir, "-e", String.valueOf(numberOfEmployees),
                 "-c", String.valueOf(numberOfCustomerEvents)};
@@ -37,6 +40,5 @@ public class SetupTablesMainTest {
 
         selectAllResult.close();
         selectAllResult2.close();
-        sqlStatements.closeConnections();
     }
 }

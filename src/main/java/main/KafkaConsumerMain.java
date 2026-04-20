@@ -1,18 +1,23 @@
 package main;
 
-import company.*;
+import company.CustomerEvent;
+import company.CustomerEventFactory;
+import company.CustomerEventTable;
+import company.SqlStatements;
 import org.apache.commons.cli.*;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.LoggerFactory;
+import utils.CompanyDatabaseConnection;
 import utils.CustomerEventDeserializer;
 import utils.InputOutputUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
+import java.sql.Connection;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +27,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 public class KafkaConsumerMain {
+
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(KafkaConsumerMain.class);
 
     public static void main(String[] args){
 
@@ -63,8 +70,8 @@ public class KafkaConsumerMain {
             KafkaConsumer<String, CustomerEvent> consumer = new KafkaConsumer<>(kafkaConsumerProperties);
             consumer.subscribe(Collections.singletonList(kafkaTopic));
 
-            String database = "company";
-            SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, logger);
+            Connection companyDatabaseConnection = CompanyDatabaseConnection.getPostgresConnection();
+            SqlStatements sqlStatements = new SqlStatements(companyDatabaseConnection, null);
 
             List<CustomerEvent> customerEvents = new ArrayList<>();
             int databaseThreshold = 20000;
@@ -95,9 +102,7 @@ public class KafkaConsumerMain {
                 consumer.commitSync();
             }
         } catch (IOException e){
-            e.printStackTrace();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.info(e.getMessage());
         } catch (ParseException e) {
             logger.info(e.getMessage());
             formatter.printHelp("Kafka Consumer Main", options);        }

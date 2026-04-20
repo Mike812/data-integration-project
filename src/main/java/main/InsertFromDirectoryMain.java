@@ -2,14 +2,14 @@ package main;
 
 import company.*;
 import org.apache.commons.cli.*;
+import utils.CompanyDatabaseConnection;
 import utils.InputOutputUtils;
 import utils.JsonUtils;
-import utils.PostgreSqlUtils;
+import utils.TestDatabaseConnection;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -56,17 +56,24 @@ public class InsertFromDirectoryMain {
             fh = new FileHandler(logFile, true);
             logger.addHandler(fh);
 
-            SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, logger);
+            Connection databaseConnection;
+            if(database.equals(CompanyDatabaseConnection.getDatabaseName())){
+                databaseConnection = CompanyDatabaseConnection.getPostgresConnection();
+            } else {
+                databaseConnection = TestDatabaseConnection.getPostgresConnection();
+            }
 
-            int limit = 10000;
+            SqlStatements sqlStatements = new SqlStatements(databaseConnection, logger);
+
+            int sublistThreshold = 10000;
             if (table.equals(CustomerEventTable.TABLE_NAME)){
                 logger.info("Read customer events from directory");
                 List<CustomerEvent> allCustomerEvents = JsonUtils.readCustomerEventsFromDirectory(inputDir);
                 int maxId = sqlStatements.getMaxIdFromTable(table, CustomerEventTable.ID_COLUMN);
                 List<CustomerEvent> allCustomerEventsWithId = CustomerEventFactory.addIdToCustomerEvents(allCustomerEvents, maxId);
-                if (allCustomerEvents.size() > limit){
+                if (allCustomerEvents.size() > sublistThreshold){
                     logger.info("Insert customer events in sublists");
-                    insertCustomerEventSublistsIntoTable(sqlStatements, allCustomerEventsWithId, limit);
+                    insertCustomerEventSublistsIntoTable(sqlStatements, allCustomerEventsWithId, sublistThreshold);
                 } else {
                     logger.info("Insert customer events at once");
                     sqlStatements.insertCustomerEventsIntoTable(CustomerEventTable.TABLE_NAME, allCustomerEventsWithId);
@@ -77,9 +84,9 @@ public class InsertFromDirectoryMain {
                 List<Employee> allEmployees = JsonUtils.readEmployeesFromDirectory(inputDir);
                 int maxId = sqlStatements.getMaxIdFromTable(table, EmployeeTable.ID_COLUMN);
                 List<Employee> allEmployeesWithId = EmployeeFactory.addIdToEmployees(allEmployees, maxId);
-                if (allEmployees.size() > limit){
+                if (allEmployees.size() > sublistThreshold){
                     logger.info("Insert employees in sublists");
-                    insertEmployeeSublistsIntoTable(sqlStatements, allEmployeesWithId, limit);
+                    insertEmployeeSublistsIntoTable(sqlStatements, allEmployeesWithId, sublistThreshold);
                 } else {
                     logger.info("Insert employees at once");
                     sqlStatements.insertEmployeesIntoTable(EmployeeTable.TABLE_NAME, allEmployeesWithId);
@@ -89,10 +96,7 @@ public class InsertFromDirectoryMain {
                 System.out.println("Table name " + table + " is not supported. Use " + EmployeeTable.TABLE_NAME +
                         " or " + CustomerEventTable.TABLE_NAME + " instead");
             }
-            sqlStatements.closeConnections();
-        } catch (SQLException e){
-            logger.info("Sql problem in main method");
-            logger.info(e.getMessage());
+
         } catch (ParseException e){
             logger.info(e.getMessage());
             formatter.printHelp("Setup tables main", options);

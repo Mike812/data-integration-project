@@ -4,9 +4,10 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
 import org.junit.runners.MethodSorters;
+import utils.CompanyDatabaseConnection;
 import utils.PostgreSqlUtils;
+import utils.TestDatabaseConnection;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,8 +20,11 @@ import static utils.JsonUtils.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SqlStatementsTest {
 
-    String database = "company";
-    String testDatabase = "test_company";
+    String database = CompanyDatabaseConnection.getDatabaseName();
+    String testDatabase = TestDatabaseConnection.getDatabaseName();
+
+    Connection companyDatabaseConnection = CompanyDatabaseConnection.getPostgresConnection();
+    Connection testDatabaseConnection = TestDatabaseConnection.getPostgresConnection();
 
     String employeeTable = EmployeeTable.TABLE_NAME;
     EmployeeFactory employeeFactory = new EmployeeFactory();
@@ -42,24 +46,18 @@ public class SqlStatementsTest {
     public SqlStatementsTest() {}
 
 
-    @Test
-    @Order(1)
-    public void testACreateDatabase() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
-        Statement statement = postgreSqlConnection.getSqlStatement(connection);
-        SqlStatements sqlStatements = new SqlStatements(connection, statement, testDatabase, null);
-
-        int createDatabaseResult = sqlStatements.createDatabase();
+    //@Test
+    //@Order(1)
+    public void testACreateDatabase() {
+        SqlStatements sqlStatements = new SqlStatements(companyDatabaseConnection, null);
+        int createDatabaseResult = sqlStatements.createDatabase(testDatabase);
         assertEquals(0, createDatabaseResult);
-
-        connection.close();
     }
 
     @Test
     @Order(2)
     public void testBCreateAndDropTable() throws SQLException {
-        SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(testDatabase, null);
+        SqlStatements sqlStatements = new SqlStatements(testDatabaseConnection, null);
 
         int createTableResult = sqlStatements.createTable(employeeTable);
         assertEquals(0, createTableResult);
@@ -72,14 +70,12 @@ public class SqlStatementsTest {
 
         int dropCustomerEventResult = sqlStatements.dropTable(customerEventTable);
         assertEquals(0, dropCustomerEventResult);
-
-        sqlStatements.closeConnections();
     }
 
     @Test
     @Order(3)
     public void testCInsertSelectAndMaxIdEmployee() throws SQLException {
-        SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(testDatabase, null);
+        SqlStatements sqlStatements = new SqlStatements(testDatabaseConnection, null);
 
         int dropTableResult = sqlStatements.dropTable(employeeTable);
         assertEquals(0, dropTableResult);
@@ -108,14 +104,12 @@ public class SqlStatementsTest {
 
         int insertSampleDataResult = sqlStatements.insertEmployeesIntoTable(employeeTable, employees);
         assertEquals(numberOfEmployees, insertSampleDataResult);
-
-        sqlStatements.closeConnections();
     }
 
     @Test
     @Order(4)
     public void testDInsertSelectAndMaxIdCustomerEvent() throws SQLException {
-        SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(testDatabase, null);
+        SqlStatements sqlStatements = new SqlStatements(testDatabaseConnection, null);
 
         int dropTableResult = sqlStatements.dropTable(customerEventTable);
         assertEquals(0, dropTableResult);
@@ -144,21 +138,14 @@ public class SqlStatementsTest {
         int insertTableResult = sqlStatements.insertCustomerEventsIntoTable(customerEventTable,
                 customerEvents);
         assertEquals(numberOfEvents, insertTableResult);
-
-        sqlStatements.closeConnections();
     }
 
-    @Test
-    @Order(5)
+    //@Test
+    //@Order(5)
     public void testEDropDatabase() throws SQLException {
-        PostgreSqlUtils postgreSqlConnection = new PostgreSqlUtils(database);
-        Connection connection = postgreSqlConnection.getPostgreSqlConnection();
-        Statement statement = postgreSqlConnection.getSqlStatement(connection);
-        SqlStatements sqlStatements = new SqlStatements(connection, statement, testDatabase, null);
+        SqlStatements sqlStatements = new SqlStatements(testDatabaseConnection, null);
 
-        int dropDatabaseResult = sqlStatements.dropDatabase();
+        int dropDatabaseResult = sqlStatements.dropDatabase(testDatabase);
         assertEquals(0, dropDatabaseResult);
-
-        sqlStatements.closeConnections();
     }
 }

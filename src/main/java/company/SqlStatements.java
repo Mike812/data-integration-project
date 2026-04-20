@@ -15,14 +15,10 @@ import java.util.logging.Logger;
 public class SqlStatements {
 
     private Connection connection;
-    private Statement statement;
-    private String database;
     private Logger logger;
 
-    public SqlStatements(Connection connection, Statement statement, String database, Logger logger){
+    public SqlStatements(Connection connection, Logger logger){
         this.connection = connection;
-        this.statement = statement;
-        this.database = database;
 
         if(logger == null){
             this.logger = Logger.getLogger("Sql Statements Log");
@@ -31,13 +27,14 @@ public class SqlStatements {
         }
     }
 
-    public int createDatabase(){
+    public int createDatabase(String database){
         int result = -1;
         try{
-            String sqlString = SqlStatementUtils.getCreateDatabaseCmd(this.database);
+            String sqlString = SqlStatementUtils.getCreateDatabaseCmd(database);
             PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
             result = preparedStatement.executeUpdate();
             logger.info("Database created successfully");
+            preparedStatement.close();
         } catch (SQLException e) {
             logger.info("Create database failed");
             e.printStackTrace();
@@ -46,13 +43,14 @@ public class SqlStatements {
         return result;
     }
 
-    public int dropDatabase(){
+    public int dropDatabase(String database){
         int result = -1;
         try{
-            String sqlString = SqlStatementUtils.getDropDatabaseCmd(this.database);
+            String sqlString = SqlStatementUtils.getDropDatabaseCmd(database);
             PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
             result = preparedStatement.executeUpdate();
             logger.info("Database dropped successfully if exists");
+            preparedStatement.close();
         } catch (SQLException e) {
             logger.info("Drop database failed");
             e.printStackTrace();
@@ -78,6 +76,7 @@ public class SqlStatements {
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
                 result = preparedStatement.executeUpdate();
                 logger.info("Table created successfully if not exists");
+                preparedStatement.close();
             } else {
                 logger.info("Create table sql string could not be generated");
                 throw new SQLException();
@@ -94,9 +93,10 @@ public class SqlStatements {
         int result = -1;
         try{
             String sqlString = SqlStatementUtils.getDropTableCmd(inputTable);
-            PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
             result = preparedStatement.executeUpdate();
             logger.info("Table dropped successfully if exists");
+            preparedStatement.close();
         } catch (SQLException e) {
             logger.info("Drop table failed");
             e.printStackTrace();
@@ -109,7 +109,9 @@ public class SqlStatements {
         ResultSet resultSet = null;
         try {
             String selectAllFromTableString = SqlStatementUtils.getSelectAllFromTableCmd(inputTable);
+            Statement statement = connection.createStatement();
             resultSet = statement.executeQuery(selectAllFromTableString);
+            statement.close();
         } catch (SQLException e){
             logger.info("Get max id from sql result failed");
             e.printStackTrace();
@@ -125,6 +127,7 @@ public class SqlStatements {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
             result = preparedStatement.executeUpdate();
             logger.info("Values truncated from table " + inputTable);
+            preparedStatement.close();
         } catch (SQLException e) {
             logger.info("Truncate table failed");
             e.printStackTrace();
@@ -137,22 +140,19 @@ public class SqlStatements {
         int maxId = -1;
         try {
             String maxIdFromTableString = SqlStatementUtils.getMaxIdFromTableCmd(inputTable, idField);
+            Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery(maxIdFromTableString);
             while(result.next()){
                 maxId = result.getInt(SqlStatementUtils.maxId);
             }
             result.close();
+            statement.close();
         } catch (SQLException e){
             logger.info("Get max id from sql result failed");
             e.printStackTrace();
         }
 
         return maxId;
-    }
-
-    public void closeConnections() throws SQLException {
-        this.statement.close();
-        this.connection.close();
     }
 
     public int insertEmployeesIntoTable(String table, List<Employee> employees){
@@ -162,6 +162,7 @@ public class SqlStatements {
             PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
             result = preparedStatement.executeUpdate();
             logger.info("Values were inserted successfully into table " + table);
+            preparedStatement.close();
         } catch (SQLException e) {
             logger.info("Insert into table failed");
             e.printStackTrace();

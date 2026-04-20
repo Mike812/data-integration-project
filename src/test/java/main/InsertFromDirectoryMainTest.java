@@ -5,13 +5,12 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import utils.PostgreSqlUtils;
+import utils.TestDatabaseConnection;
 
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -19,7 +18,8 @@ import static org.junit.Assert.assertEquals;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class InsertFromDirectoryMainTest {
 
-    String database = "company";
+    String database = TestDatabaseConnection.getDatabaseName();
+    Connection databaseConnection = TestDatabaseConnection.getPostgresConnection();
     int samplesFirstRun = 10000;
     int samplesSecondRun = 5000;
     String logDir = "C:/data-integration-project/logs/";
@@ -51,7 +51,7 @@ public class InsertFromDirectoryMainTest {
 
     @Test
     public void testBInsertFromDirectoryMainEmployee() throws SQLException {
-        SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, null);
+        SqlStatements sqlStatements = new SqlStatements(databaseConnection, null);
 
         sqlStatements.truncateTable(EmployeeTable.TABLE_NAME);
 
@@ -66,7 +66,6 @@ public class InsertFromDirectoryMainTest {
         assertEquals(expected, employees.size());
 
         selectAllResult.close();
-        sqlStatements.closeConnections();
     }
 
     @Test
@@ -95,7 +94,7 @@ public class InsertFromDirectoryMainTest {
 
     @Test
     public void testDInsertFromDirectoryMainCustomerEvent() throws SQLException {
-        SqlStatements sqlStatements = SqlStatementsFactory.getSqlStatementsObject(database, null);
+        SqlStatements sqlStatements = new SqlStatements(databaseConnection, null);
 
         sqlStatements.truncateTable(CustomerEventTable.TABLE_NAME);
 
@@ -110,6 +109,5 @@ public class InsertFromDirectoryMainTest {
         assertEquals(expected, customerEvents.size());
 
         selectAllResult.close();
-        sqlStatements.closeConnections();
     }
 }

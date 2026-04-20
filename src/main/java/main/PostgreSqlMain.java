@@ -1,12 +1,11 @@
 package main;
 
 import company.*;
-import utils.PostgreSqlUtils;
+import utils.CompanyDatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -16,15 +15,12 @@ public class PostgreSqlMain {
 
     public static void main(String[] args){
         try{
-            String database = "company";
             String inputTable = CustomerEventTable.TABLE_NAME;
             int numberOfSamplesToCreate = 1000;
             String runMode = "select";
 
-            PostgreSqlUtils postgresSqlConnection = new PostgreSqlUtils(database);
-            Connection connection = postgresSqlConnection.getPostgreSqlConnection();
-            Statement statement = postgresSqlConnection.getSqlStatement(connection);
-            SqlStatements sqlStatements = new SqlStatements(connection, statement, database, null);
+            Connection databaseConnection = CompanyDatabaseConnection.getPostgresConnection();
+            SqlStatements sqlStatements = new SqlStatements(databaseConnection, null);
 
             switch (runMode){
                 case "select":
@@ -66,9 +62,6 @@ public class PostgreSqlMain {
                     sqlStatements.createTable(inputTable);
                     break;
             }
-
-            statement.close();
-            connection.close();
         } catch (SQLException e){
             System.out.println("PostgreSql main method failed");
             e.printStackTrace();
