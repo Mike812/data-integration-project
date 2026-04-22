@@ -36,10 +36,10 @@ public interface EmployeeTable {
     static String getInsertIntoTableString(String table, List<Employee> employees){
         String insertIntoSql = "INSERT INTO " + table + " VALUES ";
         for(Employee employee : employees){
-            insertIntoSql += " (" + employee.getEmployeeId() + fieldSeparatorString + employee.getName() +
-                    fieldSeparatorTwoStrings + employee.getDepartment() + fieldSeparatorTwoStrings +
-                    employee.getState() + fieldSeparatorStringInt + employee.getSalary() + fieldSeparatorInt +
-                    employee.getAge() + fieldSeparatorInt + employee.getBonus() + "),";
+            insertIntoSql += " (" + employee.getEmployeeId() + separatorIntString + employee.getName() +
+                    separatorTwoStrings + employee.getDepartment() + separatorTwoStrings +
+                    employee.getState() + separatorStringInt + employee.getSalary() + separator +
+                    employee.getAge() + separator + employee.getBonus() + "),";
         }
         // replace last comma with semicolon
         insertIntoSql = insertIntoSql.substring(0, insertIntoSql.length()-1) + ";";

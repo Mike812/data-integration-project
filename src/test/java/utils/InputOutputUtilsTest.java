@@ -8,9 +8,10 @@ import static org.junit.Assert.assertEquals;
 
 public class InputOutputUtilsTest {
 
+    List<String> usStateLines = InputOutputUtils.getUsStatesInfoFromFile();
+
     @Test
     public void testGetLinesFromFile(){
-        List<String> usStateLines = InputOutputUtils.getUsStatesInfoFromFile();
         assertEquals(54, usStateLines.size());
         String[] arizonaInfo = usStateLines.get(2).split("\t");
         assertEquals("Arizona", arizonaInfo[0]);
@@ -28,8 +29,15 @@ public class InputOutputUtilsTest {
     }
 
     @Test
-    public void testGetUsStateTwoLetterCodesFromFile(){
-        List<String> usStateCodes = InputOutputUtils.getUsStateTwoLetterCodesFromFile();
+    public void testGetUsStateNames(){
+        List<String> usStateNames = InputOutputUtils.getUsStateNames(usStateLines);
+        assertEquals(54, usStateNames.size());
+        assertEquals("Arizona", usStateNames.get(2));
+    }
+
+    @Test
+    public void testGetUsStateTwoLetterCodes(){
+        List<String> usStateCodes = InputOutputUtils.getUsStateTwoLetterCodes(usStateLines);
         assertEquals(54, usStateCodes.size());
         assertEquals("AZ", usStateCodes.get(2));
     }

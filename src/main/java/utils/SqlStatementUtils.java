@@ -3,11 +3,11 @@ package utils;
 public class SqlStatementUtils {
     public static String maxId = "max_id";
 
-    public static String fieldSeparatorInt = ", ";
+    public static String separator = ", ";
     public static String backslashString = "\'";
-    public static String fieldSeparatorString = fieldSeparatorInt + backslashString;
-    public static String fieldSeparatorStringInt = backslashString + fieldSeparatorInt;
-    public static String fieldSeparatorTwoStrings = backslashString + fieldSeparatorInt + backslashString;
+    public static String separatorIntString = separator + backslashString;
+    public static String separatorStringInt = backslashString + separator;
+    public static String separatorTwoStrings = backslashString + separator + backslashString;
 
     public static String getSelectAllFromTableCmd(String table){
         return "SELECT * FROM " + table;

@@ -1,6 +1,5 @@
 package company;
 
-import org.slf4j.LoggerFactory;
 import utils.InputOutputUtils;
 
 import java.sql.ResultSet;
@@ -14,14 +13,14 @@ import java.util.stream.IntStream;
  */
 public class CustomerEventFactory {
 
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(CustomerEventFactory.class);
     List<String> customerNames;
     String[] productNames;
     int[] salesAmounts;
     Logger logger;
 
     public CustomerEventFactory(Logger logger){
-        this.customerNames = InputOutputUtils.getCompanyNamesFromFile();
+        DataFactory dataFactory = DataFactory.getInstance();
+        this.customerNames = dataFactory.getCompanyNames();
         this.productNames = new String[]{"Software as a Service", "Platform as a Service"};
         this.salesAmounts = IntStream.range(1, 10).toArray();
         if(logger == null){

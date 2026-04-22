@@ -1,5 +1,6 @@
 package company;
 
+import org.slf4j.LoggerFactory;
 import utils.SqlStatementUtils;
 
 import java.sql.*;
@@ -12,6 +13,7 @@ import java.util.logging.Logger;
  */
 public class SqlStatements {
 
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(SqlStatements.class);
     private Connection connection;
     private Logger logger;
 
@@ -65,8 +67,14 @@ public class SqlStatements {
             case EmployeeTable.TABLE_NAME:
                 sqlString = EmployeeTable.getCreateTableString();
                 break;
+            case CustomerTable.TABLE_NAME:
+                sqlString = CustomerTable.getCreateTableString();
+                break;
             case CustomerEventTable.TABLE_NAME:
                 sqlString = CustomerEventTable.getCreateTableString();
+                break;
+            case CustomerResponsibilityTable.TABLE_NAME:
+                sqlString = CustomerResponsibilityTable.getCreateTableString();
                 break;
         }
         try{
@@ -80,8 +88,9 @@ public class SqlStatements {
                 throw new SQLException();
             }
         } catch (SQLException e) {
-            logger.info("Create table failed.");
-            e.printStackTrace();
+            logger.info("Create table failed");
+            logger.info(e.getMessage());
+            throw new RuntimeException();
         }
 
         return result;
@@ -156,6 +165,38 @@ public class SqlStatements {
         int result = -1;
         try{
             String sqlString = EmployeeTable.getInsertIntoTableString(table, employees);
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
+            result = preparedStatement.executeUpdate();
+            logger.info("Values were inserted successfully into table " + table);
+            preparedStatement.close();
+        } catch (SQLException e) {
+            logger.info("Insert into table failed");
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public int insertCustomersIntoTable(String table, List<Customer> customers){
+        int result = -1;
+        try{
+            String sqlString = CustomerTable.getInsertIntoTableString(customers);
+            PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
+            result = preparedStatement.executeUpdate();
+            logger.info("Values were inserted successfully into table " + table);
+            preparedStatement.close();
+        } catch (SQLException e) {
+            logger.info("Insert into table failed");
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public int insertCustomerResponsibilitiesIntoTable(String table, List<CustomerResponsibility> customerResponsibilities){
+        int result = -1;
+        try{
+            String sqlString = CustomerResponsibilityTable.getInsertIntoTableString(customerResponsibilities);
             PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
             result = preparedStatement.executeUpdate();
             logger.info("Values were inserted successfully into table " + table);

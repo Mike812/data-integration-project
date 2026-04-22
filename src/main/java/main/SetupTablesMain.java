@@ -2,6 +2,7 @@ package main;
 
 import company.*;
 import org.apache.commons.cli.*;
+import org.checkerframework.checker.units.qual.C;
 import utils.CompanyDatabaseConnection;
 import utils.InputOutputUtils;
 import utils.PostgreSqlUtils;
@@ -73,14 +74,15 @@ public class SetupTablesMain {
             }
 
             SqlStatements sqlStatements = new SqlStatements(databaseConnection, logger);
+            String[] tableNames = {EmployeeTable.TABLE_NAME, CustomerTable.TABLE_NAME, CustomerEventTable.TABLE_NAME,
+                    CustomerResponsibilityTable.TABLE_NAME};
 
-            logger.info("Create tables");
-            sqlStatements.createTable(EmployeeTable.TABLE_NAME);
-            sqlStatements.createTable(CustomerEventTable.TABLE_NAME);
-
-            logger.info("Truncate tables");
-            sqlStatements.truncateTable(EmployeeTable.TABLE_NAME);
-            sqlStatements.truncateTable(CustomerEventTable.TABLE_NAME);
+            for(String table : tableNames){
+                logger.info("Create table: " + table);
+                sqlStatements.createTable(table);
+                logger.info("Truncate if old data is available");
+                sqlStatements.truncateTable(table);
+            }
 
             if(numberOfEmployeeSamples>0){
                 logger.info("Create random sample data and insert values in employee");
@@ -88,7 +90,17 @@ public class SetupTablesMain {
                 List<Employee> randomEmployees =
                         empFactory.createEmployeeSampleData(0, numberOfEmployeeSamples, true);
                 sqlStatements.insertEmployeesIntoTable(EmployeeTable.TABLE_NAME, randomEmployees);
+
+                CustomerFactory customerFactory = new CustomerFactory(logger);
+                List<Customer> randomCustomers = customerFactory.createCustomerSampleData();
+                sqlStatements.insertCustomersIntoTable(CustomerTable.TABLE_NAME, randomCustomers);
+
+                CustomerResponsibilityFactory customerResponsibilityFactory =
+                        new CustomerResponsibilityFactory(randomEmployees, randomCustomers, logger);
+                List<CustomerResponsibility> customerResponsibilities = customerResponsibilityFactory.createCustomerResponsibilitySampleData();
+                sqlStatements.insertCustomerResponsibilitiesIntoTable(CustomerResponsibilityTable.TABLE_NAME, customerResponsibilities);
             }
+
 
             if(numberOfCustomerEventSamples>0){
                 logger.info("Create random sample data and insert values in customer event");
