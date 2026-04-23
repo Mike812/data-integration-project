@@ -32,9 +32,9 @@ public interface CustomerEventTable {
     static String getInsertIntoTableString(String table, List<CustomerEvent> customerEvents){
         String insertIntoSql = "INSERT INTO " + table + " VALUES ";
         for(CustomerEvent event : customerEvents){
-            insertIntoSql += " (" + event.getCustomerEventId() + fieldSeparatorString + event.getCustomerName() +
-                    fieldSeparatorTwoStrings + event.getProductName() + fieldSeparatorStringInt +
-                    event.getSalesAmount() + fieldSeparatorString + event.getEventTimestamp() + backslashString +
+            insertIntoSql += " (" + event.getCustomerEventId() + separatorIntString + event.getCustomerName() +
+                    separatorTwoStrings + event.getProductName() + separatorStringInt +
+                    event.getSalesAmount() + separatorIntString + event.getEventTimestamp() + backslashString +
                     "),";
         }
         // replace last comma with semicolon

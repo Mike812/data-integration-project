@@ -67,10 +67,19 @@ public class InputOutputUtils {
         return InputOutputUtils.getLinesFromFile(pathToUsStatesFile);
     }
 
-    public static List<String> getUsStateTwoLetterCodesFromFile(){
-        List<String> lines = getUsStatesInfoFromFile();
+    public static List<String> getUsStateNames(List<String> usStateInfo){
+        List<String> stateNames = new ArrayList<>();
+        for(String line : usStateInfo){
+            String[] splittedLine = line.split("\\t");
+            stateNames.add(splittedLine[0]);
+        }
+
+        return stateNames;
+    }
+
+    public static List<String> getUsStateTwoLetterCodes(List<String> usStateInfo){
         List<String> twoLetterCodes = new ArrayList<>();
-        for(String line : lines){
+        for(String line : usStateInfo){
             String[] splittedLine = line.split("\\t");
             twoLetterCodes.add(splittedLine[splittedLine.length-1]);
         }

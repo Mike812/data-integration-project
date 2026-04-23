@@ -1,7 +1,6 @@
 package main;
 
-import company.CustomerEvent;
-import company.EmployeeTable;
+import company.*;
 import org.apache.spark.sql.*;
 import utils.CompanyDatabaseConnection;
 import utils.PostgreSqlUtils;
@@ -24,9 +23,11 @@ public class SparkMain {
         sparkJdbcProps.put("password", postgresProps.get("password"));
         sparkJdbcProps.put("driver", "org.postgresql.Driver");
 
-        Dataset<Row> df = sparkSession.read().jdbc(url, EmployeeTable.TABLE_NAME, sparkJdbcProps);
+        Dataset<Row> dfCustomers = sparkSession.read().jdbc(url, CustomerTable.TABLE_NAME, sparkJdbcProps);
+        dfCustomers.show();
 
-        df.show();
+        Dataset<Row> dfCustomerR = sparkSession.read().jdbc(url, CustomerResponsibilityTable.TABLE_NAME, sparkJdbcProps);
+        dfCustomerR.show();
 
         Encoder<CustomerEvent> customerEventEncoder = Encoders.bean(CustomerEvent.class);
 

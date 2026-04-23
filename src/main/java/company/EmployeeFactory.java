@@ -1,7 +1,5 @@
 package company;
 
-import utils.InputOutputUtils;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,10 +23,11 @@ public class EmployeeFactory {
     Logger logger;
 
     public EmployeeFactory(Logger logger){
-        this.firstNames = InputOutputUtils.getFirstNamesFromFile();
-        this.lastNames = InputOutputUtils.getLastNamesFromFile();
+        DataFactory dataFactory = DataFactory.getInstance();
+        this.firstNames = dataFactory.getFirstNames();
+        this.lastNames = dataFactory.getLastNames();
         this.departments = new String[]{"Finance", "Marketing", "Sales", "Accounting", "IT"};
-        this.states = InputOutputUtils.getUsStateTwoLetterCodesFromFile();
+        this.states = dataFactory.getStateCodes();
         this.salary = IntStream.range(50000, 100000).toArray();
         this.age = IntStream.range(20, 60).toArray();
         this.bonus = new int[]{1000, 2000, 5000, 10000, 15000};

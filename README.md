@@ -1,7 +1,7 @@
 # Java data integration project
 
 Java project that includes database connections to postgreSql and Streaming connections to Apache Kafka. 
-It simulates a company with different tables (employees and customer events) and random sample data in json format.
+It simulates a company with different tables and random sample data in json format.
 In case of customer events the json files can be seen as input data that is published to a Kafka topic. 
 On the other hand there is a Kafka consumer app that subscribes to the Kafka topic, aggregates the data and write it to a database.
 It is also possible to create different scenarios, e.g. write employee json data directly to a database and query it.
